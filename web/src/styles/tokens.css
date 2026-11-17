@@ -1,0 +1,121 @@
+/* Tokens del sistema visual v2 (docs/UI-ESTRUCTURA-VISUAL-v2.md §8).
+   Paleta: cal, papel, tinta índigo y un único acento azul maya. Los semánticos (ok, warn, error) no son decoración. */
+:root {
+  /* Color — claro */
+  --bg: #edf0f1;          /* cal */
+  --surface: #fbfcfc;     /* papel */
+  --surface-2: #e3e8ea;   /* hundido: campos, fondos de tabla */
+  --fg: #1b2a41;          /* tinta índigo */
+  --muted: #4f5e70;
+  --line: #d3dadd;
+  --line-strong: #b4bfc5;
+  --accent: #1a6f81;      /* azul maya (5.06:1 sobre --bg, 5.8:1 sobre blanco) */
+  --on-accent: #ffffff;
+  --ok: #1e7b4b;
+  --warn: #9a5b00;        /* ocre */
+  --error: #b3261e;
+  --sombra-tinte: 27 42 65;
+
+  /* Tipografía */
+  --font-texto: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-titulo: 'Newsreader', Georgia, 'Times New Roman', serif;
+
+  --t-12: 0.75rem;
+  --t-14: 0.875rem;
+  --t-16: 1rem;
+  --t-20: 1.25rem;
+  --t-32: 2rem;
+  --t-44: 2.75rem; /* solo para el total */
+
+  /* Espacio (base de 4 px) */
+  --e-1: 4px;
+  --e-2: 8px;
+  --e-3: 12px;
+  --e-4: 16px;
+  --e-5: 24px;
+  --e-6: 32px;
+  --e-7: 48px;
+
+  /* Forma jerárquica: controles, superficies, flotantes, píldora */
+  --r-control: 6px;
+  --r-superficie: 16px;
+  --r-flotante: 24px;
+  --r-pildora: 999px;
+
+  /* Sombra solo en lo flotante */
+  --sombra-flotante: 0 14px 32px -10px rgb(var(--sombra-tinte) / 0.3), 0 2px 6px rgb(var(--sombra-tinte) / 0.1);
+
+  /* Estructura */
+  --ancho-sidebar: 220px;
+  --ancho-sidebar-colapsada: 72px;
+  --ancho-panel: 360px;
+  --alto-topbar: 64px;
+  --alto-status: 32px;
+  --margen-app: 12px;
+
+  --mov-corto: 160ms;
+  --mov-medio: 280ms;
+  --curva: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  color-scheme: light;
+}
+
+/* Oscuro por preferencia del sistema, salvo que el usuario haya fijado claro */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0e1520;
+    --surface: #151e2b;
+    --surface-2: #0a1019;
+    --fg: #e6ebf1;
+    --muted: #9aa8b8;
+    --line: #263446;
+    --line-strong: #3a4c62;
+    --accent: #5cc0d4;
+    --on-accent: #0a1019;
+    --ok: #5fd08f;
+    --warn: #f0b04a;
+    --error: #f28b82;
+    --sombra-tinte: 0 0 0;
+    color-scheme: dark;
+  }
+}
+
+/* Oscuro fijado por el usuario */
+:root[data-theme='dark'] {
+  --bg: #0e1520;
+  --surface: #151e2b;
+  --surface-2: #0a1019;
+  --fg: #e6ebf1;
+  --muted: #9aa8b8;
+  --line: #263446;
+  --line-strong: #3a4c62;
+  --accent: #5cc0d4;
+  --on-accent: #0a1019;
+  --ok: #5fd08f;
+  --warn: #f0b04a;
+  --error: #f28b82;
+  --sombra-tinte: 0 0 0;
+  color-scheme: dark;
+}
+
+/* Transición entre modos: la clase solo existe unos instantes al cambiar de tema */
+.cambiando-tema,
+.cambiando-tema *,
+.cambiando-tema *::before,
+.cambiando-tema *::after {
+  transition:
+    background-color var(--mov-medio) ease,
+    color var(--mov-medio) ease,
+    border-color var(--mov-medio) ease,
+    fill var(--mov-medio) ease,
+    stroke var(--mov-medio) ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cambiando-tema,
+  .cambiando-tema *,
+  .cambiando-tema *::before,
+  .cambiando-tema *::after {
+    transition: none !important;
+  }
+}
