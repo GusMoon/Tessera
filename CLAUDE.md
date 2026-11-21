@@ -65,6 +65,17 @@ npm run build    # revisa tipos y empaqueta
 npm test         # pruebas de cálculo y formato de dinero
 ```
 
+Configuración de la API de IA (Python; `agent/llm/`, ver `docs/contratos.md`):
+
+```
+py -3.13 -m venv .venv                   # una sola vez (cualquier Python 3.11+)
+.venv\Scripts\activate                   # Windows; en Linux/macOS: source .venv/bin/activate
+pip install -r requirements-dev.txt
+copy .env.example .env                   # y llena .env localmente; nunca se versiona
+python -m pytest                         # pruebas con mocks, sin red
+python scripts/verificar_llm.py          # envía una pregunta de prueba al proveedor de LLM_PROVIDER
+```
+
 Para el resto del sistema, documentar aquí (y mantener al día):
 
 ```
@@ -72,7 +83,6 @@ Para el resto del sistema, documentar aquí (y mantener al día):
 # levantar todo:        docker compose up
 # migraciones:          <comando>
 # cargar datos de prueba: <comando>
-# pruebas:              <comando>
 # evaluación:           <comando>
 ```
 

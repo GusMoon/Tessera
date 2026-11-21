@@ -1,0 +1,11 @@
+# Secretos: nunca al repositorio (regla 7 de CLAUDE.md).
+# Por indicación explícita del equipo, .env.example también se ignora.
+.env
+.env.*
+.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

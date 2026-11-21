@@ -1,0 +1,2 @@
+openai>=1.50,<3
+pydantic-settings>=2.4,<3
