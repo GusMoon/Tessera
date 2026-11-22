@@ -1,0 +1,89 @@
+{
+  "proyecto": "TESSERA",
+  "hito": "HITO 1 · ENTRADA (DATOS)",
+  "semilla": 42,
+  "fecha_generacion": "2026-11-21T17:49:33.367911",
+  "resumen": {
+    "total_archivos": 12,
+    "catalogo_csv": {
+      "archivo": "catalogo_materiales.csv",
+      "total_filas": 50,
+      "filas_validas": 47,
+      "filas_defectuosas": 3
+    },
+    "historial_xlsx": {
+      "archivo": "historial_cotizaciones.xlsx",
+      "total_filas": 120,
+      "filas_validas": 115,
+      "filas_defectuosas": 5
+    },
+    "fichas_pdf": {
+      "total_archivos": 10,
+      "validos": 10,
+      "defectuosos": 0
+    },
+    "totales_combinados": {
+      "total_filas_datos": 170,
+      "total_filas_validas": 162,
+      "total_filas_defectuosas": 8
+    }
+  },
+  "rechazos_plantados": [
+    {
+      "archivo": "catalogo_materiales.csv",
+      "fila": 17,
+      "campo": "SKU",
+      "valor_crudo": "",
+      "motivo": "SKU faltante o vacío"
+    },
+    {
+      "archivo": "catalogo_materiales.csv",
+      "fila": 32,
+      "campo": "Precio_Unitario",
+      "valor_crudo": "-350.00",
+      "motivo": "Precio unitario negativo"
+    },
+    {
+      "archivo": "catalogo_materiales.csv",
+      "fila": 51,
+      "campo": "Precio_Unitario",
+      "valor_crudo": "CONSULTAR",
+      "motivo": "Precio no numérico o vacío"
+    },
+    {
+      "archivo": "historial_cotizaciones.xlsx",
+      "fila": 22,
+      "campo": "Cantidad",
+      "valor_crudo": "DOCE",
+      "motivo": "Cantidad no numérica"
+    },
+    {
+      "archivo": "historial_cotizaciones.xlsx",
+      "fila": 48,
+      "campo": "Precio_Unitario",
+      "valor_crudo": "-215.00",
+      "motivo": "Precio unitario negativo"
+    },
+    {
+      "archivo": "historial_cotizaciones.xlsx",
+      "fila": 74,
+      "campo": "Fecha",
+      "valor_crudo": "32/13/2025",
+      "motivo": "Fecha inválida"
+    },
+    {
+      "archivo": "historial_cotizaciones.xlsx",
+      "fila": 100,
+      "campo": "Concepto",
+      "valor_crudo": "",
+      "motivo": "Concepto o descripción faltante"
+    },
+    {
+      "archivo": "historial_cotizaciones.xlsx",
+      "fila": 121,
+      "campo": "Cantidad",
+      "valor_crudo": "0",
+      "motivo": "Cantidad menor o igual a cero o faltante"
+    }
+  ]
+}

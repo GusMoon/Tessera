@@ -1,2 +1,21 @@
+# Dependencias de Tessera
+# Todas con licencias permisivas (MIT, BSD, Apache 2.0). Cero AGPL.
+
+# Agente / modelo de lenguaje
 openai>=1.50,<3
 pydantic-settings>=2.4,<3
+
+# Backend (API)
+fastapi>=0.115.0
+uvicorn>=0.30.0
+pydantic>=2.8.0
+python-multipart>=0.0.9
+
+# Procesamiento e ingesta de datos (Hito 1)
+pandas>=2.2.0
+openpyxl>=3.1.5
+pypdf>=5.0.0
+
+# Generador de datos sintéticos y reportes técnicos
+faker>=30.0.0
+reportlab>=4.2.0

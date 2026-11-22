@@ -1,0 +1,52 @@
+SKU,Descripcion,Categoria,Unidad,Precio_Unitario,Moneda,Fecha_Precio,Notas
+GAB-303015,Gabinete metálico sobreponer NEMA 1 30x30x15 cm cal 16,Gabinetes,pza,$850.00 MXN,MXN,23/11/2025,Material estándar puesto en obra Mérida
+GAB-403020,Gabinete metálico NEMA 4X intemperie 40x30x20 cm cal 14,Gabinetes,pza,1650,,28/10/2026,
+GAB-504020,Gabinete autosoportado NEMA 12 50x40x20 cm,Gabinetes,PZA,"$2,420.00",MXN,08/11/2026,
+CAB-THW-12N,Cable de cobre THW-LS Calibre 12 AWG Negro (rollo 100m),Conductores,rollo,1250.0 MXN,,09/08/2026,Material estándar puesto en obra Mérida
+CAB-THW-12R,Cable de cobre THW-LS Calibre 12 AWG Rojo (rollo 100m),Conductores,rollo,1250,MXN,24 de febrero de 2026,
+CAB-THW-10B,Cable de cobre THW-LS Calibre 10 AWG Blanco (rollo 100m),Conductores,ROLLO,"$1,890.00 MXN",,11/10/2026,
+CAB-THW-08V,Cable de cobre THW-LS Calibre 8 AWG Verde (rollo 100m),Conductores,rollo,2980,MXN,14/10/2026,Material estándar puesto en obra Mérida
+TUB-CND-075,Tubo conduit galvanizado pared delgada 3/4 pulg x 3m,Canalización,tramo,$145.00,,25/10/2026,
+TUB-CND-100,Tubo conduit galvanizado pared delgada 1 pulg x 3m,Canalización,tramo,215.0 MXN,MXN,29/10/2025,
+TUB-CND-G075,Tubo conduit galvanizado pared gruesa 3/4 pulg x 3m,Canalización,tramo,310,,29 de octubre de 2026,Material estándar puesto en obra Mérida
+TUB-CND-G100,Tubo conduit galvanizado pared gruesa 1 pulg x 3m,Canalización,TRAMO,$445.00 MXN,MXN,17/08/2026,
+COP-CND-075,Cople conduit pared delgada 3/4 pulg con tornillo,Conexiones,pz,12.5,,09/08/2026,
+COP-CND-100,Cople conduit pared delgada 1 pulg con tornillo,Conexiones,pza,$18.00,MXN,19/09/2025,Material estándar puesto en obra Mérida
+CON-CND-075,Conector conduit pared delgada 3/4 pulg,Conexiones,pieza,14.0 MXN,,03/09/2026,
+CON-CND-100,Conector conduit pared delgada 1 pulg,Conexiones,pz,21,MXN,31 de octubre de 2026,
+,Gabinete especial sin código de parte cal 14,Gabinetes,pza,"$1,980.00 MXN",MXN,15/04/2026,Defecto plantado: SKU faltante
+ABR-UNA-075,Abrazadera tipo uña para conduit 3/4 pulg galvanizada,Fijación,pza,$6.50 MXN,,28/08/2026,Material estándar puesto en obra Mérida
+ABR-UNA-100,Abrazadera tipo uña para conduit 1 pulg galvanizada,Fijación,Pieza,9,MXN,17/01/2026,
+CC-4P-BIF,Centro de carga 4 polos Square D QOD4F bifásico empotrar,Tableros,pza,$480.00,,07/11/2026,
+CC-8P-TRI,Centro de carga 8 polos Square D trifásico sobreponer,Tableros,PZA,890.0 MXN,MXN,08/11/2026,Material estándar puesto en obra Mérida
+CC-12P-TRI,Centro de carga 12 polos Square D trifásico zapatas principales,Tableros,pza,1350,,31 de octubre de 2026,
+INT-TM-120,Interruptor termomagnético 1P 20A Square D QO120,Protección,pza,$175.00 MXN,MXN,11/03/2026,
+INT-TM-130,Interruptor termomagnético 1P 30A Square D QO130,Protección,pz,175,,13/10/2026,Material estándar puesto en obra Mérida
+INT-TM-230,Interruptor termomagnético 2P 30A Square D QO230,Protección,pza,$460.00,MXN,08/09/2026,
+INT-TM-250,Interruptor termomagnético 2P 50A Square D QO250,Protección,pza,520.0 MXN,,26/08/2026,
+INT-TM-360,Interruptor termomagnético 3P 60A Square D QO360,Protección,PZA,980,MXN,29 de abril de 2026,Material estándar puesto en obra Mérida
+CAJ-FS-075,Caja registro FS galvanizada 1 elemento 3/4 pulg,Cajas,pza,$85.00 MXN,,01/09/2026,
+CAJ-FD-075,Caja registro FD doble fondo galvanizada 3/4 pulg,Cajas,pieza,125,MXN,17/10/2026,
+CAJ-CH-4X4,Caja cuadrada chalupa 4x4 pulg galvanizada cal 18,Cajas,pz,$28.00,,12/08/2026,Material estándar puesto en obra Mérida
+TAP-CH-4X4,Tapa ciega cuadrada 4x4 pulg galvanizada,Cajas,pza,14.5 MXN,MXN,20/11/2025,
+CAB-THW-NEG,Cable de cobre THW calibre 4 con precio negativo,Conductores,m,-350,MXN,10/05/2026,Defecto plantado: Precio negativo
+TUB-PVC-H050,Tubo PVC hidráulico cédula 40 1/2 pulg x 6m,Tubería Hidráulica,tramo,115,,14 de agosto de 2026,
+TUB-PVC-H075,Tubo PVC hidráulico cédula 40 3/4 pulg x 6m,Tubería Hidráulica,tramo,$168.00 MXN,MXN,03/09/2026,Material estándar puesto en obra Mérida
+TUB-PVC-H100,Tubo PVC hidráulico cédula 40 1 pulg x 6m,Tubería Hidráulica,TRAMO,260,,19/09/2026,
+TUB-PVC-H200,Tubo PVC hidráulico cédula 40 2 pulg x 6m,Tubería Hidráulica,tramo,$580.00,MXN,10/03/2026,
+TUB-PVC-S100,Tubo PVC sanitario 4 pulg (100mm) x 6m norma,Tubería Sanitaria,tramo,495.0 MXN,,15/09/2026,Material estándar puesto en obra Mérida
+TUB-PVC-S050,Tubo PVC sanitario 2 pulg (50mm) x 6m norma,Tubería Sanitaria,tramo,280,MXN,28 de agosto de 2026,
+PEG-PVC-250,Pegamento para PVC azul secado rápido bote 250ml,Químicos,pza,$89.00 MXN,,07/10/2026,
+LIM-PVC-250,Limpiador primer para PVC bote 250ml,Químicos,pz,75,MXN,10/10/2025,Material estándar puesto en obra Mérida
+CINT-AIS-3M,Cinta de aislar vinílica 3M Scotch 1700 19mm x 18m,Consumibles,pza,$38.00,,11/11/2026,
+CINT-VUL-3M,Cinta vulcanizable para empalmes alta tensión 3M 23,Consumibles,rollo,185.0 MXN,MXN,06/08/2026,
+VAR-COP-58,Varilla de tierra Copperweld 5/8 pulg x 1.5m con conector,Puesta a Tierra,pza,320,,31 de julio de 2026,Material estándar puesto en obra Mérida
+CON-VAR-58,Conector mecánico para varilla de tierra 5/8 pulg bronce,Puesta a Tierra,pza,$45.00 MXN,MXN,26/03/2026,
+LAM-LED-60,Luminaria LED tipo gabinete sobreponer 2x18W 1.20m,Iluminación,pza,340,,14/08/2026,
+LAM-REF-50,Reflector LED intemperie 50W 6500K IP65 carcasa aluminio,Iluminación,PZA,$290.00,MXN,18/09/2026,Material estándar puesto en obra Mérida
+AP-ESC-SN,Apagador sencillo 1 módulo Simon 25 marfil,Placas,pieza,42.0 MXN,,29/09/2026,
+CON-DUP-SN,Contacto dúplex aterrizado Simon 25 marfil,Placas,pza,58,MXN,23 de febrero de 2026,
+PLA-3MOD-SN,Placa con chasis 3 módulos Simon 25 marfil,Placas,pz,$28.00 MXN,,23/10/2026,Material estándar puesto en obra Mérida
+TAB-PST-05,Taquete plástico con pija cabeza fijadora 1/4 pulg bolsa 100 pz,Fijación,bolsa,65,MXN,15/10/2026,
+TUB-ESP-999,Tubería especial cedula 80 sin cotización numérica,Canalización,tramo,CONSULTAR,MXN,01/06/2026,Defecto plantado: Precio no numérico
+,,wffasd,adsf,-120,,,
