@@ -74,7 +74,12 @@ pip install -r requirements-dev.txt
 copy .env.example .env                   # y llena .env localmente; nunca se versiona
 python -m pytest                         # pruebas con mocks, sin red
 python scripts/verificar_llm.py          # envía una pregunta de prueba al proveedor de LLM_PROVIDER
+python scripts/probar_llm.py             # chat por terminal; /archivo <ruta> adjunta txt, csv, xlsx, pdf o imágenes (/ayuda)
+python scripts/probar_llm.py --proveedor openrouter --modelo <id>:free -a archivo -p "pregunta"   # una sola pregunta
 ```
+
+Nota: `baidu/ernie-5.5-flash-preview:free` solo acepta texto (verificado en el catálogo de OpenRouter el 22/11/2026);
+para imágenes usa `--modelo` con uno de visión, p. ej. `nvidia/nemotron-3.5-super-vl:free`.
 
 Para el resto del sistema, documentar aquí (y mantener al día):
 

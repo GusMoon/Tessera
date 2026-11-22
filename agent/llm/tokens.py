@@ -19,8 +19,20 @@ def estimar_tokens(texto: str) -> int:
     return int(len(texto) / _CARACTERES_POR_TOKEN) + 1 if texto else 0
 
 
+_TOKENS_POR_IMAGEN = 800  # [Suposición] costo típico de una imagen; el base64 NO se cuenta como texto
+
+
 def _tokens_mensaje(m: dict[str, Any]) -> int:
-    return estimar_tokens(str(m.get("content") or "")) + _SOBRECOSTO_MENSAJE
+    contenido = m.get("content") or ""
+    if isinstance(contenido, list):  # contenido multimodal: partes {"type": "text"|"image_url", ...}
+        total = 0
+        for parte in contenido:
+            if isinstance(parte, dict) and parte.get("type") == "text":
+                total += estimar_tokens(str(parte.get("text") or ""))
+            else:
+                total += _TOKENS_POR_IMAGEN
+        return total + _SOBRECOSTO_MENSAJE
+    return estimar_tokens(str(contenido)) + _SOBRECOSTO_MENSAJE
 
 
 def recortar_historial(mensajes: list[dict[str, Any]], presupuesto: int) -> list[dict[str, Any]]:
