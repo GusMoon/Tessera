@@ -4,7 +4,7 @@
   "semilla": 42,
   "fecha_generacion": "2026-11-21T17:49:33.367911",
   "resumen": {
-    "total_archivos": 12,
+    "total_archivos": 13,
     "catalogo_csv": {
       "archivo": "catalogo_materiales.csv",
       "total_filas": 50,
@@ -26,6 +26,12 @@
       "total_filas_datos": 170,
       "total_filas_validas": 162,
       "total_filas_defectuosas": 8
+    },
+    "tarifario_servicios": {
+      "archivo": "tarifario_servicios.csv",
+      "total_filas": 15,
+      "filas_validas": 15,
+      "filas_defectuosas": 0
     }
   },
   "rechazos_plantados": [

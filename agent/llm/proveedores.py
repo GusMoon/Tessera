@@ -14,15 +14,18 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+import httpx
 import openai
 from openai import OpenAI
 
 from .config import ConfigLLM
+from .limites import LimitesGroq
 from .seguridad import enmascarar, redactar
 from .tokens import UsoAcumulado, recortar_historial
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
-PROVEEDORES = ("ollama", "openrouter")
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+PROVEEDORES = ("ollama", "openrouter", "groq")
 _TIMEOUT_SEGUNDOS = 120.0  # un modelo de 3B en CPU puede tardar; se ajustará con la medición de latencia
 _MAX_REINTENTOS = 1
 
@@ -43,6 +46,10 @@ class ErrorAutenticacionLLM(ErrorLLM):
 class ErrorLimiteLLM(ErrorLLM):
     """429: se alcanzó el límite de uso."""
 
+    def __init__(self, mensaje: str, reintentar_en_s: int | None = None):
+        super().__init__(mensaje)
+        self.reintentar_en_s = reintentar_en_s  # segundos hasta poder reintentar, si el proveedor lo informó
+
 
 class ErrorModeloNoDisponibleLLM(ErrorLLM):
     """El modelo (o todos los de la lista) no está disponible."""
@@ -50,6 +57,33 @@ class ErrorModeloNoDisponibleLLM(ErrorLLM):
 
 class ErrorRedLLM(ErrorLLM):
     """No hubo conexión con el proveedor."""
+
+
+def segundos_hasta_reintento(exc: Exception, ahora: float | None = None) -> int | None:
+    """Segundos de espera que el proveedor indicó en un 429: cabecera ``Retry-After`` (segundos) o, si no está,
+    ``X-RateLimit-Reset`` (milisegundos desde 1970). None si no vino ninguna o no es interpretable."""
+    cabeceras = getattr(getattr(exc, "response", None), "headers", None) or {}
+    retry = cabeceras.get("retry-after")
+    try:
+        if retry is not None:
+            return max(1, int(float(retry)))
+        reinicio_ms = cabeceras.get("x-ratelimit-reset")
+        if reinicio_ms is not None:
+            return max(1, int(float(reinicio_ms) / 1000 - (time.time() if ahora is None else ahora)))
+    except (TypeError, ValueError):
+        pass
+    return None
+
+
+def texto_espera(segundos: int) -> str:
+    """«45 s», «12 min» o «3 h 20 min»."""
+    if segundos < 90:
+        return f"{segundos} s"
+    minutos = round(segundos / 60)
+    if minutos < 60:
+        return f"{minutos} min"
+    horas, resto = divmod(minutos, 60)
+    return f"{horas} h {resto} min" if resto else f"{horas} h"
 
 
 # --------------------------------------------------------------------------- resultado
@@ -76,6 +110,7 @@ class ProveedorLLM:
     _temperatura: float | None = field(default=None, repr=False)
     _contexto_entrada: int = field(default=0, repr=False)
     uso: UsoAcumulado = field(default_factory=UsoAcumulado)
+    limites: LimitesGroq | None = field(default=None, repr=False)  # solo Groq: lo que informó la última respuesta
 
     def completar(
         self,
@@ -131,15 +166,42 @@ class ProveedorLLM:
                     "401: OpenRouter rechazó la clave (inválida, revocada o ausente). "
                     f"Revisa OPENROUTER_API_KEY en tu archivo .env (clave actual: {enmascarar(self._clave)})."
                 )
+            if self.nombre == "groq":
+                return ErrorAutenticacionLLM(
+                    "401: Groq rechazó la clave (inválida, revocada o ausente). "
+                    f"Revisa GROQ_API_KEY en tu archivo .env (clave actual: {enmascarar(self._clave)})."
+                )
             return ErrorAutenticacionLLM(f"401: el servidor rechazó la autenticación. {detalle}")
         if isinstance(exc, openai.RateLimitError):
-            return ErrorLimiteLLM(
-                "429: se alcanzó el límite de uso. Los modelos gratuitos tienen límites por minuto y por día; "
-                "espera unos minutos, agrega más modelos a OPENROUTER_MODELS o cambia a LLM_PROVIDER=ollama."
-                if self.nombre == "openrouter"
-                else f"429: el servidor está saturado. {detalle}"
+            espera = segundos_hasta_reintento(exc)
+            if self.nombre == "openrouter":
+                mensaje = (
+                    "429: se alcanzó el límite de uso. Los modelos gratuitos limitan por peticiones (no por tokens): "
+                    "20 por minuto y un tope diario por cuenta. Espera unos minutos, agrega más modelos a "
+                    "OPENROUTER_MODELS o cambia a LLM_PROVIDER=ollama."
+                )
+            elif self.nombre == "groq":
+                mensaje = (
+                    "429: se alcanzó el límite del plan gratuito de Groq, que limita por peticiones y por tokens "
+                    "(en gpt-oss-20b: 30 por minuto, 8,000 tokens por minuto, 1,000 por día y 200,000 tokens por día, "
+                    "según su documentación; tus límites exactos están en la consola de Groq)."
+                )
+            else:
+                mensaje = f"429: el servidor está saturado. {detalle}"
+            if espera:
+                mensaje += f" Puedes reintentar en {texto_espera(espera)}."
+            return ErrorLimiteLLM(mensaje, reintentar_en_s=espera)
+        if self.nombre == "groq" and isinstance(exc, openai.APIStatusError) and exc.status_code == 413:
+            return ErrorLLM(
+                "413: la petición es demasiado grande para el límite de tokens por minuto de Groq. "
+                "Adjunta un archivo más corto o usa «Nueva» para empezar sin historial."
             )
         if isinstance(exc, (openai.NotFoundError, openai.BadRequestError)):
+            if self.nombre == "groq":
+                return ErrorModeloNoDisponibleLLM(
+                    f"Groq rechazó la petición con el modelo '{self.modelos[0]}'. Revisa GROQ_MODEL y "
+                    f"GROQ_REASONING_EFFORT en tu .env. Detalle: {detalle}"
+                )
             if self.nombre == "ollama":
                 return ErrorModeloNoDisponibleLLM(
                     f"Ollama no tiene el modelo '{self.modelos[0]}'. Descárgalo con: ollama pull {self.modelos[0]}"
@@ -151,7 +213,7 @@ class ProveedorLLM:
                 f"revisa los IDs en la lista de OpenRouter. Detalle: {detalle}"
             )
         if isinstance(exc, (openai.APIConnectionError, openai.APITimeoutError)):
-            destino = OPENROUTER_BASE_URL if self.nombre == "openrouter" else str(self._cliente.base_url)
+            destino = {"openrouter": OPENROUTER_BASE_URL, "groq": GROQ_BASE_URL}.get(self.nombre, str(self._cliente.base_url))
             ayuda = " ¿Está corriendo Ollama (ollama serve)?" if self.nombre == "ollama" else ""
             return ErrorRedLLM(f"No hay conexión con {destino}. Revisa tu red o la URL.{ayuda}")
         if isinstance(exc, openai.APIStatusError):
@@ -178,6 +240,8 @@ def crear_proveedor(config: ConfigLLM | None = None) -> ProveedorLLM:
         return _crear_ollama(config)
     if nombre == "openrouter":
         return _crear_openrouter(config)
+    if nombre == "groq":
+        return _crear_groq(config)
     raise ErrorConfiguracionLLM(
         f"LLM_PROVIDER='{config.llm_provider}' no es válido. Valores aceptados: {', '.join(PROVEEDORES)}."
     )
@@ -225,6 +289,32 @@ def _crear_openrouter(config: ConfigLLM) -> ProveedorLLM:
         _cliente=cliente,
         _extra_body={"models": modelos},
         _clave=clave,
+        **_limites(config),
+    )
+
+
+def _crear_groq(config: ConfigLLM) -> ProveedorLLM:
+    clave = config.groq_api_key.get_secret_value().strip()
+    if not clave:
+        raise ErrorConfiguracionLLM(
+            "Falta GROQ_API_KEY. Crea una clave gratuita en console.groq.com (sin registrar tarjeta) y pégala en "
+            "tu archivo .env (nunca en el chat ni en el código)."
+        )
+    modelo = config.groq_model.strip()
+    if not modelo:
+        raise ErrorConfiguracionLLM("GROQ_MODEL está vacío. Usa, por ejemplo, openai/gpt-oss-20b.")
+    limites = LimitesGroq()
+    # Gancho de httpx: lee las cabeceras de límites de cada respuesta sin cambiar cómo se llama al modelo.
+    http = httpx.Client(timeout=_TIMEOUT_SEGUNDOS, event_hooks={"response": [limites.registrar_respuesta]})
+    cliente = OpenAI(base_url=GROQ_BASE_URL, api_key=clave, http_client=http, max_retries=_MAX_REINTENTOS)
+    esfuerzo = config.groq_reasoning_effort.strip().lower()
+    return ProveedorLLM(
+        nombre="groq",
+        modelos=[modelo],
+        _cliente=cliente,
+        _extra_body={"reasoning_effort": esfuerzo} if esfuerzo else None,
+        _clave=clave,
+        limites=limites,
         **_limites(config),
     )
 

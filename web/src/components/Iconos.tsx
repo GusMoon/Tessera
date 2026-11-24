@@ -31,6 +31,7 @@ const TRAZOS = {
   archivo: 'M6 3h9l4 4v14H6z M14 3v5h5',
   monitor: 'M3 5h18v11H3z M9 20h6 M12 16v4',
   calendario: 'M4 6h16v14H4z M4 10h16 M8 3v4 M16 3v4',
+  clip: 'M21 11l-9 9a6 6 0 0 1-8.5-8.5l9-9a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5',
 } as const;
 
 export type NombreIcono = keyof typeof TRAZOS;

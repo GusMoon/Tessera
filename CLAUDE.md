@@ -29,7 +29,7 @@ Cotizador comercial con IA para empresas de construcción y suministro de materi
 | `data/synthetic/` | Datos sintéticos «sucios» y su generador | A |
 | `data/eval/` | 50 casos de evaluación escritos a mano | Todos (10 c/u) |
 | `ingest/` | Lectores de Excel, PDF, chats; sincronización incremental | A |
-| `db/migrations/` | Esquema SQL | A |
+| `db/` | Esquema SQL (`schema.sql`) y migraciones ligeras (`_migrar` en `database.py`) | A |
 | `retrieval/` | Embeddings, búsqueda híbrida, reranking | B |
 | `eval/` | Script de evaluación, latencia y comparativa de modelos | B |
 | `agent/tools/` | Herramientas del agente | C |
@@ -44,14 +44,14 @@ Roles: A datos e ingesta, B búsqueda y evaluación, C agente y memoria, D produ
 
 ## Stack (propuesta, aún por confirmar)
 
-- Base de datos: PostgreSQL con pgvector (SQL y vectores en un solo motor).
+- Base de datos: SQLite (archivo único) con FTS5 para texto y FAISS para vectores, según el «Plan de Prototipado a Escala» [Certeza: lo define el plan, 23/11/2026]. PostgreSQL con pgvector queda como camino para escalar, no para el prototipo.
 - Modelos: LLM abierto cuantizado y modelo de embeddings multilingüe, servidos localmente con llama.cpp u Ollama. Se eligen con el set de evaluación propio, no por popularidad.
-- Lenguaje de backend: Python con FastAPI [sin confirmar: el PPTX original menciona PDFsharp y .NET; decidir según lo que maneje el equipo].
-- Interfaz: web con React y TypeScript [sin confirmar].
+- Lenguaje de backend: Python 3.11+ con FastAPI [Certeza: ya implementado y elegido en el plan].
+- Interfaz: web con React, TypeScript y Vite [Certeza: ya implementada y elegida en el plan].
 - Despliegue: Docker Compose, un solo comando para levantar todo.
-- PDF: librería con licencia permisiva.
+- PDF: ReportLab (BSD) [Certeza: ya es dependencia del proyecto].
 
-Cuando el stack se confirme, actualizar esta sección y borrar las marcas.
+Pendiente de confirmar: el LLM local (ver licencia de Qwen2.5-3B en `docs/licencias.md`).
 
 ## Comandos
 
@@ -80,6 +80,30 @@ python scripts/probar_llm.py --proveedor openrouter --modelo <id>:free -a archiv
 
 Nota: `baidu/ernie-5.5-flash-preview:free` solo acepta texto (verificado en el catálogo de OpenRouter el 22/11/2026);
 para imágenes usa `--modelo` con uno de visión, p. ej. `nvidia/nemotron-3.5-super-vl:free`.
+
+Búsqueda y cotización (Hito 2; ver `docs/hitos.md` y `docs/contratos.md`):
+
+```
+pip install -r requirements.txt          # incluye faiss-cpu y sentence-transformers (la primera vez baja multilingual-e5-small, ~0.5 GB)
+python scripts/indexar.py                # reindexa la base actual (fragmentos + FTS5 + vectores); --embedder hash para no usar el modelo
+python eval/evaluar.py                   # 50 casos: latencia, exactitud de totales, top-5 y fuentes; guarda eval/resultados/*.json
+python eval/evaluar.py --demo --con-llm  # además prueba la redacción con MODO_DEMO y con el LLM de .env (fuera del veredicto)
+python eval/referencia.py --actualizar   # recalcula los totales esperados de data/eval/casos.json (si el equipo edita los casos)
+```
+
+La API reindexa sola, en segundo plano, después de cargar fuentes. `TESSERA_EMBEDDER=hash` evita cargar el modelo (solo para pruebas).
+
+Levantar la aplicación completa (dos terminales, desde la raíz del repositorio):
+
+```
+# Terminal 1 · backend (http://127.0.0.1:8000, documentación en /docs)
+.venv\Scripts\python -m uvicorn api.main:app --port 8000
+# Terminal 2 · interfaz (http://localhost:5173; /api se redirige al backend)
+cd web && npm install && npm run dev
+# Compilar la interfaz para producción: cd web && npm run build   (genera web/dist)
+```
+
+El chat usa el proveedor de `LLM_PROVIDER` en `.env` (con OpenRouter: `LLM_PROVIDER=openrouter`).
 
 Para el resto del sistema, documentar aquí (y mantener al día):
 

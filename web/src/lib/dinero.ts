@@ -4,7 +4,7 @@
 export type Centavos = number;
 
 /** Fecha fija del prototipo para que la antigüedad de precios sea reproducible. */
-export const FECHA_REFERENCIA = '2026-11-11';
+export const FECHA_REFERENCIA = '2026-11-21';
 
 /** Umbral de aviso de precio antiguo. [Propuesta] Se confirma con la Persona A. */
 export const UMBRAL_ANTIGUEDAD_MESES = 6;

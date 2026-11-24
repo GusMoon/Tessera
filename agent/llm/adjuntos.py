@@ -51,40 +51,54 @@ class Adjunto:
 
 # --------------------------------------------------------------------------- lectura
 def leer_adjunto(ruta: str | Path, max_caracteres: int = MAX_CARACTERES) -> Adjunto:
+    """Lee un archivo del disco. Para archivos que llegan por la API usa `leer_adjunto_bytes`."""
     p = Path(str(ruta).strip().strip('"').strip("'")).expanduser()
     if not p.is_file():
         raise ErrorAdjunto(f"No existe el archivo: {p}")
-    ext = p.suffix.lower()
     tamano = p.stat().st_size
+    _validar_tamano(p.suffix.lower(), tamano)
+    return leer_adjunto_bytes(p.name, p.read_bytes(), max_caracteres)
+
+
+def leer_adjunto_bytes(nombre: str, datos: bytes, max_caracteres: int = MAX_CARACTERES) -> Adjunto:
+    """Convierte el contenido de un archivo (``datos``) en un `Adjunto`. No escribe nada en disco."""
+    nombre = Path(nombre).name or "archivo"  # solo el nombre: nunca rutas que vengan de fuera
+    ext = Path(nombre).suffix.lower()
+    tamano = len(datos)
+    _validar_tamano(ext, tamano)
 
     if ext in EXT_IMAGEN:
-        if tamano > MAX_BYTES_IMAGEN:
-            raise ErrorAdjunto(f"La imagen pesa {tamano / 1_048_576:.1f} MB; el máximo es {MAX_BYTES_IMAGEN // 1_048_576} MB.")
-        b64 = base64.b64encode(p.read_bytes()).decode("ascii")
-        return Adjunto(p.name, "imagen", data_url=f"data:{EXT_IMAGEN[ext]};base64,{b64}", detalle=f"{tamano / 1024:.0f} KB")
+        b64 = base64.b64encode(datos).decode("ascii")
+        return Adjunto(nombre, "imagen", data_url=f"data:{EXT_IMAGEN[ext]};base64,{b64}", detalle=f"{tamano / 1024:.0f} KB")
 
-    if tamano > MAX_BYTES_ARCHIVO:
-        raise ErrorAdjunto(f"El archivo pesa {tamano / 1_048_576:.1f} MB; el máximo es {MAX_BYTES_ARCHIVO // 1_048_576} MB.")
     if ext in EXT_TEXTO:
-        texto, detalle = _decodificar(p.read_bytes()), "texto"
+        texto, detalle = _decodificar(datos), "texto"
     elif ext in EXT_CSV:
-        texto, detalle = _leer_csv(p, "\t" if ext == ".tsv" else None)
+        texto, detalle = _leer_csv(datos, "\t" if ext == ".tsv" else None)
     elif ext in EXT_EXCEL:
-        texto, detalle = _leer_excel(p)
+        texto, detalle = _leer_excel(datos)
     elif ext == ".pdf":
-        texto, detalle = _leer_pdf(p)
+        texto, detalle = _leer_pdf(nombre, datos)
     else:
         validos = sorted(EXT_TEXTO | EXT_CSV | EXT_EXCEL | {".pdf"} | set(EXT_IMAGEN))
         raise ErrorAdjunto(f"Formato no soportado ({ext or 'sin extensión'}). Formatos: {', '.join(validos)}.")
 
     texto = texto.strip()
     if not texto:
-        raise ErrorAdjunto(f"{p.name} no contiene texto legible.")
+        raise ErrorAdjunto(f"{nombre} no contiene texto legible.")
     original = len(texto)
     truncado = max_caracteres > 0 and original > max_caracteres
     if truncado:
         texto = texto[:max_caracteres] + "\n[... contenido recortado ...]"
-    return Adjunto(p.name, "texto", texto=texto, detalle=detalle, caracteres_originales=original, truncado=truncado)
+    return Adjunto(nombre, "texto", texto=texto, detalle=detalle, caracteres_originales=original, truncado=truncado)
+
+
+def _validar_tamano(ext: str, tamano: int) -> None:
+    if ext in EXT_IMAGEN:
+        if tamano > MAX_BYTES_IMAGEN:
+            raise ErrorAdjunto(f"La imagen pesa {tamano / 1_048_576:.1f} MB; el máximo es {MAX_BYTES_IMAGEN // 1_048_576} MB.")
+    elif tamano > MAX_BYTES_ARCHIVO:
+        raise ErrorAdjunto(f"El archivo pesa {tamano / 1_048_576:.1f} MB; el máximo es {MAX_BYTES_ARCHIVO // 1_048_576} MB.")
 
 
 def _decodificar(datos: bytes) -> str:
@@ -96,8 +110,8 @@ def _decodificar(datos: bytes) -> str:
     return datos.decode("latin-1", errors="replace")
 
 
-def _leer_csv(p: Path, delimitador: str | None) -> tuple[str, str]:
-    texto = _decodificar(p.read_bytes())
+def _leer_csv(datos: bytes, delimitador: str | None) -> tuple[str, str]:
+    texto = _decodificar(datos)
     if delimitador is None:
         try:
             delimitador = csv.Sniffer().sniff(texto[:4096], delimiters=",;|\t").delimiter
@@ -107,11 +121,11 @@ def _leer_csv(p: Path, delimitador: str | None) -> tuple[str, str]:
     return "\n".join(" | ".join(c.strip() for c in fila) for fila in filas), f"CSV, {len(filas)} filas"
 
 
-def _leer_excel(p: Path) -> tuple[str, str]:
+def _leer_excel(datos: bytes) -> tuple[str, str]:
     from openpyxl import load_workbook  # import diferido: solo se necesita para Excel
 
     try:
-        libro = load_workbook(p, read_only=True, data_only=True)
+        libro = load_workbook(io.BytesIO(datos), read_only=True, data_only=True)
     except Exception as exc:  # openpyxl lanza tipos variados con archivos corruptos
         raise ErrorAdjunto(f"No se pudo abrir el Excel: {exc}") from None
     try:
@@ -128,17 +142,17 @@ def _leer_excel(p: Path) -> tuple[str, str]:
         libro.close()
 
 
-def _leer_pdf(p: Path) -> tuple[str, str]:
+def _leer_pdf(nombre: str, datos: bytes) -> tuple[str, str]:
     from pypdf import PdfReader
 
     try:
-        lector = PdfReader(str(p))
+        lector = PdfReader(io.BytesIO(datos))
         paginas = [(pag.extract_text() or "").strip() for pag in lector.pages]
     except Exception as exc:
         raise ErrorAdjunto(f"No se pudo leer el PDF: {exc}") from None
     if not any(paginas):
         raise ErrorAdjunto(
-            f"{p.name} no tiene texto extraíble (posiblemente es un escaneo). "
+            f"{nombre} no tiene texto extraíble (posiblemente es un escaneo). "
             "Conviértelo a imagen (PNG/JPG) y adjúntalo con un modelo que acepte imágenes."
         )
     return "\n\n".join(paginas), f"PDF, {len(paginas)} páginas"

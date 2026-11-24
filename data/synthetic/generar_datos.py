@@ -4,7 +4,12 @@ Genera:
 1. catalogo_materiales.csv (50 filas: 47 válidas, 3 defectuosas plantadas)
 2. historial_cotizaciones.xlsx (120 filas: 115 válidas, 5 defectuosas plantadas)
 3. 10 fichas técnicas en PDF (formato legible, extracción con pypdf)
-4. manifiesto.json (conteo esperado, detalle de las 8 filas defectuosas y sus motivos)
+4. tarifario_servicios.csv (15 servicios válidos: fletes por zona, instalación por pieza, opcionales premium)
+5. manifiesto.json (conteo esperado, detalle de las 8 filas defectuosas y sus motivos)
+
+Uso:
+    python data/synthetic/generar_datos.py                    # regenera todo
+    python data/synthetic/generar_datos.py --solo-tarifario   # solo el tarifario; actualiza el manifiesto sin tocar lo demás
 
 Contexto: Suministro de materiales eléctricos y de construcción en Mérida, Yucatán.
 Semilla fija (seed=42) para reproducibilidad total.
@@ -678,6 +683,72 @@ def generar_fichas_pdf() -> list[str]:
     return fichas_generadas
 
 
+# (codigo, servicio, tipo, unidad, precio, zona, incluir_en, dias_de_antiguedad, notas)
+SERVICIOS_BASE = [
+    ("SRV-FLE-MER", "Flete a obra en Mérida y zona conurbada", "Flete", "viaje", 650.00, "Mérida", "todos", 20, "Camioneta 3.5 t"),
+    ("SRV-FLE-KAN", "Flete a obra en Kanasín", "Flete", "viaje", 780.00, "Kanasín", "todos", 35, "Camioneta 3.5 t"),
+    ("SRV-FLE-UMA", "Flete a obra en Umán", "Flete", "viaje", 820.00, "Umán", "todos", 35, "Camioneta 3.5 t"),
+    ("SRV-FLE-PRO", "Flete a obra en Progreso", "Flete", "viaje", 1150.00, "Progreso", "todos", 48, "Incluye maniobra de descarga"),
+    ("SRV-FLE-MOT", "Flete a obra en Motul", "Flete", "viaje", 1350.00, "Motul", "todos", 245, "Tarifa por confirmar con transportista"),
+    ("SRV-FLE-IZA", "Flete a obra en Izamal", "Flete", "viaje", 1650.00, "Izamal", "todos", 62, ""),
+    ("SRV-FLE-VAL", "Flete a obra en Valladolid", "Flete", "viaje", 2400.00, "Valladolid", "todos", 230, "Tarifa de 2025"),
+    ("SRV-FLE-TIZ", "Flete a obra en Tizimín", "Flete", "viaje", 2900.00, "Tizimín", "todos", 41, ""),
+    ("SRV-INS-GAB", "Instalación de gabinete metálico (hasta 60 cm)", "Instalación", "pza", 480.00, "", "todos", 27, "Incluye fijación y nivelación"),
+    ("SRV-INS-TAB", "Instalación de tablero o centro de carga", "Instalación", "pza", 650.00, "", "todos", 27, "No incluye acometida"),
+    ("SRV-INS-CON", "Instalación de canalización con tubo conduit", "Instalación", "m", 38.00, "", "todos", 90, "Hasta 3 m de altura"),
+    ("SRV-INS-LUM", "Instalación de luminaria industrial", "Instalación", "pza", 320.00, "", "todos", 215, "Tarifa de 2025"),
+    ("SRV-INS-INT", "Instalación de interruptor termomagnético", "Instalación", "pza", 190.00, "", "todos", 27, ""),
+    ("SRV-OPC-SUP", "Supervisión en obra (visita técnica)", "Opcional", "visita", 1800.00, "", "premium", 33, "Solo en escenario premium"),
+    ("SRV-OPC-GAR", "Garantía extendida de 12 meses", "Opcional", "servicio", 2500.00, "", "premium", 33, "Solo en escenario premium"),
+]
+
+
+def generar_tarifario_csv() -> list[dict]:
+    """Genera tarifario_servicios.csv: 15 filas válidas (sin defectos plantados), con suciedad de formato.
+
+    Usa su propio generador aleatorio para no alterar los datos del catálogo, el historial ni las fichas.
+    """
+    rng = random.Random(SEMILLA + 7)
+    filas = []
+    for codigo, servicio, tipo, unidad, precio, zona, incluir_en, dias, notas in SERVICIOS_BASE:
+        fecha = FECHA_REFERENCIA - timedelta(days=dias)
+        filas.append({
+            "Codigo": codigo,
+            "Servicio": servicio,
+            "Tipo": tipo,
+            "Unidad": unidad,
+            "Precio_Unitario": formatear_moneda(precio, rng.choice([0, 1, 2])),
+            "Zona": zona,
+            "Incluir_En": incluir_en,
+            "Fecha_Precio": formatear_fecha(fecha, rng.choice([0, 1, 2])),
+            "Notas": notas,
+        })
+    return filas
+
+
+def escribir_tarifario() -> list[dict]:
+    filas = generar_tarifario_csv()
+    ruta = OUTPUT_DIR / "tarifario_servicios.csv"
+    pd.DataFrame(filas).to_csv(ruta, index=False, encoding="utf-8")
+    print(f"[OK] CSV generado: {ruta.name} ({len(filas)} filas, 0 defectuosas)")
+    return filas
+
+
+def actualizar_manifiesto_con_tarifario(filas: list[dict]) -> None:
+    """Agrega la sección del tarifario al manifiesto existente sin tocar el resto (conteos del Hito 1 intactos)."""
+    ruta = OUTPUT_DIR / "manifiesto.json"
+    manifiesto = json.loads(ruta.read_text(encoding="utf-8"))
+    manifiesto["resumen"]["total_archivos"] = 13
+    manifiesto["resumen"]["tarifario_servicios"] = {
+        "archivo": "tarifario_servicios.csv",
+        "total_filas": len(filas),
+        "filas_validas": len(filas),
+        "filas_defectuosas": 0,
+    }
+    ruta.write_text(json.dumps(manifiesto, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"[OK] Manifiesto actualizado con tarifario ({len(filas)} filas)")
+
+
 def main():
     print("=" * 60)
     print("GENERADOR DE DATASET SINTÉTICO - TESSERA HITO 1")
@@ -701,6 +772,9 @@ def main():
     fichas_pdf = generar_fichas_pdf()
     print(f"[OK] 10 PDFs de fichas técnicas generados en: {FICHAS_DIR.name}/")
 
+    # 3b. Tarifario de servicios (flete, instalación, opcionales premium)
+    filas_tarifario = escribir_tarifario()
+
     # 4. Manifiesto
     todos_los_rechazos = rechazos_csv + rechazos_xlsx
     manifiesto = {
@@ -709,7 +783,7 @@ def main():
         "semilla": SEMILLA,
         "fecha_generacion": datetime.now().isoformat(),
         "resumen": {
-            "total_archivos": 12,
+            "total_archivos": 13,
             "catalogo_csv": {
                 "archivo": "catalogo_materiales.csv",
                 "total_filas": len(filas_csv),
@@ -726,6 +800,12 @@ def main():
                 "total_archivos": len(fichas_pdf),
                 "validos": len(fichas_pdf),
                 "defectuosos": 0
+            },
+            "tarifario_servicios": {
+                "archivo": "tarifario_servicios.csv",
+                "total_filas": len(filas_tarifario),
+                "filas_validas": len(filas_tarifario),
+                "filas_defectuosas": 0
             },
             "totales_combinados": {
                 "total_filas_datos": len(filas_csv) + len(filas_xlsx),
@@ -744,4 +824,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    if "--solo-tarifario" in sys.argv:
+        actualizar_manifiesto_con_tarifario(escribir_tarifario())
+    else:
+        main()

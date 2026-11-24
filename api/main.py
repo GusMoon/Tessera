@@ -7,6 +7,8 @@ Endpoints:
 - GET  /api/fuentes/{fuente_id}/rechazos: Rechazos específicos de una fuente.
 - POST /api/fuentes/cargar-dataset-sintetico: Carga en lote del dataset sintético para demostración.
 - GET  /api/health: Estado de salud del servicio.
+- POST /api/chat: Chat con el LLM, con archivos e imágenes adjuntas (ver api/chat.py).
+- GET  /api/chat/config: Proveedor y modelos configurados.
 """
 
 import sys
@@ -19,12 +21,27 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, Query
+import logging
+
+from fastapi import BackgroundTasks, FastAPI, UploadFile, File, Form, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from db.database import get_connection, init_db
+from db.database import get_connection, init_db, vaciar_ingesta
 from ingest.servicio import procesar_archivo
+from api.chat import router as chat_router
+from retrieval.servicio import olvidar_indice, reindexar
+
+log = logging.getLogger("tessera.api")
+
+
+def _reindexar_en_segundo_plano() -> None:
+    """Reconstruye fragmentos, FTS5 y vectores tras cargar fuentes. Si falla no rompe la carga: queda en el registro."""
+    try:
+        r = reindexar()
+        log.info("Índice reconstruido: %s fragmentos con %s", r["fragmentos"], r["embedder"])
+    except Exception:  # noqa: BLE001
+        log.exception("No se pudo reindexar tras la carga")
 
 app = FastAPI(
     title="TESSERA API",
@@ -42,6 +59,9 @@ app.add_middleware(
 )
 
 
+app.include_router(chat_router)
+
+
 # Modelos Pydantic
 class FuenteResumen(BaseModel):
     id: int
@@ -54,6 +74,7 @@ class FuenteResumen(BaseModel):
     omitidas: int
     motivo: Optional[str] = None
     fecha_carga: str
+    permiso: str = "Todos"
 
 
 class RechazoItem(BaseModel):
@@ -101,7 +122,7 @@ def listar_fuentes():
                    filas_guardadas as guardadas, 
                    filas_rechazadas as rechazadas, 
                    filas_omitidas as omitidas, 
-                   motivo, fecha_carga
+                   motivo, fecha_carga, permiso
                FROM fuentes 
                ORDER BY id DESC"""
         )
@@ -112,7 +133,7 @@ def listar_fuentes():
 
 
 @app.post("/api/fuentes/subir", response_model=RespuestaCarga)
-async def subir_fuente(file: UploadFile = File(...)):
+async def subir_fuente(tareas: BackgroundTasks, file: UploadFile = File(...), permiso: Optional[str] = Form(None)):
     """
     Sube y procesa inmediatamente un archivo (CSV, XLSX o PDF).
     Valida, guarda válidas en SQLite y registra rechazos con motivo legible.
@@ -123,7 +144,8 @@ async def subir_fuente(file: UploadFile = File(...)):
 
     try:
         contenido = await file.read()
-        res = procesar_archivo(contenido, nombre)
+        res = procesar_archivo(contenido, nombre, permiso=permiso or None)
+        tareas.add_task(_reindexar_en_segundo_plano)
         
         # Consultar la fuente creada para responder con formato homogéneo
         conn = get_connection()
@@ -135,7 +157,7 @@ async def subir_fuente(file: UploadFile = File(...)):
                        filas_guardadas as guardadas, 
                        filas_rechazadas as rechazadas, 
                        filas_omitidas as omitidas, 
-                       motivo, fecha_carga
+                       motivo, fecha_carga, permiso
                    FROM fuentes WHERE id = ?""",
                 (res["fuente_id"],)
             )
@@ -149,6 +171,8 @@ async def subir_fuente(file: UploadFile = File(...)):
             mensaje=f"Archivo '{nombre}' procesado: {res['guardadas']} guardadas, {res['rechazadas']} rechazadas.",
             fuente=fuente_obj
         )
+    except ValueError as e:  # permiso no válido
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al procesar archivo: {str(e)}")
 
@@ -190,9 +214,9 @@ def listar_rechazos_fuente(fuente_id: int):
 
 
 @app.post("/api/fuentes/cargar-dataset-sintetico")
-def cargar_dataset_sintetico():
+def cargar_dataset_sintetico(tareas: BackgroundTasks):
     """
-    Carga automáticamente todo el dataset sintético (CSV, XLSX y los 10 PDFs)
+    Carga automáticamente todo el dataset sintético (CSV, tarifario, XLSX y los 10 PDFs)
     desde el disco para demostración instantánea sin intervención manual.
     """
     dir_synthetic = ROOT_DIR / "data" / "synthetic"
@@ -207,6 +231,9 @@ def cargar_dataset_sintetico():
         )
 
     archivos = [ruta_csv, ruta_xlsx]
+    ruta_tarifario = dir_synthetic / "tarifario_servicios.csv"
+    if ruta_tarifario.exists():
+        archivos.append(ruta_tarifario)
     archivos.extend(sorted(list(dir_fichas.glob("*.pdf"))))
 
     conn = get_connection()
@@ -218,6 +245,7 @@ def cargar_dataset_sintetico():
     finally:
         conn.close()
 
+    tareas.add_task(_reindexar_en_segundo_plano)
     total_guardadas = sum(p["guardadas"] for p in procesados)
     total_rechazadas = sum(p["rechazadas"] for p in procesados)
 
@@ -232,9 +260,10 @@ def cargar_dataset_sintetico():
 
 @app.post("/api/fuentes/limpiar")
 def limpiar_base():
-    """Vacía todas las tablas de ingesta en la base de datos SQLite sin tocar el código."""
-    init_db(reset=True)
-    return {"ok": True, "mensaje": "Base de datos vaciada con éxito. Pantalla lista para demostración."}
+    """Vacía las fuentes cargadas y su índice. Conserva usuarios, cotizaciones, memoria y bitácora."""
+    vaciar_ingesta()
+    olvidar_indice()
+    return {"ok": True, "mensaje": "Fuentes vaciadas con éxito. Pantalla lista para demostración."}
 
 
 if __name__ == "__main__":

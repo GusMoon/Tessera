@@ -1,0 +1,209 @@
+{
+  "nota": "Fixture compartido: lo prueban pytest (agent/tools/calcular_cotizacion.py) y vitest (web/src/lib/calculo.ts). Valores esperados calculados con fracciones exactas, no con ninguna de las dos implementaciones. Copia en web/src/lib/calculo_casos.fixture.json (pytest verifica que sean idénticas).",
+  "casos": [
+    {
+      "nombre": "ejemplo del documento de UI",
+      "tasaIvaPorciento": 16,
+      "lineas": [
+        {
+          "cantidad": 20,
+          "precioUnitario": 485000,
+          "costoUnitario": 395000
+        },
+        {
+          "cantidad": 20,
+          "precioUnitario": 62000,
+          "costoUnitario": 48000
+        },
+        {
+          "cantidad": 1,
+          "precioUnitario": 390000,
+          "costoUnitario": 310000
+        }
+      ],
+      "esperado": {
+        "importes": [
+          9700000,
+          1240000,
+          390000
+        ],
+        "subtotal": 11330000,
+        "iva": 1812800,
+        "total": 13142800,
+        "costo": 9170000,
+        "margen": 2160000,
+        "margenPuntosBase": 1906
+      }
+    },
+    {
+      "nombre": "una sola partida",
+      "tasaIvaPorciento": 16,
+      "lineas": [
+        {
+          "cantidad": 3,
+          "precioUnitario": 12345,
+          "costoUnitario": 10000
+        }
+      ],
+      "esperado": {
+        "importes": [
+          37035
+        ],
+        "subtotal": 37035,
+        "iva": 5926,
+        "total": 42961,
+        "costo": 30000,
+        "margen": 7035,
+        "margenPuntosBase": 1900
+      }
+    },
+    {
+      "nombre": "iva con redondeo hacia arriba",
+      "tasaIvaPorciento": 16,
+      "lineas": [
+        {
+          "cantidad": 1,
+          "precioUnitario": 3333,
+          "costoUnitario": 2000
+        },
+        {
+          "cantidad": 7,
+          "precioUnitario": 1111,
+          "costoUnitario": 900
+        }
+      ],
+      "esperado": {
+        "importes": [
+          3333,
+          7777
+        ],
+        "subtotal": 11110,
+        "iva": 1778,
+        "total": 12888,
+        "costo": 8300,
+        "margen": 2810,
+        "margenPuntosBase": 2529
+      }
+    },
+    {
+      "nombre": "margen con redondeo de puntos base",
+      "tasaIvaPorciento": 16,
+      "lineas": [
+        {
+          "cantidad": 3,
+          "precioUnitario": 3333,
+          "costoUnitario": 2222
+        }
+      ],
+      "esperado": {
+        "importes": [
+          9999
+        ],
+        "subtotal": 9999,
+        "iva": 1600,
+        "total": 11599,
+        "costo": 6666,
+        "margen": 3333,
+        "margenPuntosBase": 3333
+      }
+    },
+    {
+      "nombre": "precio por debajo del costo (margen negativo)",
+      "tasaIvaPorciento": 16,
+      "lineas": [
+        {
+          "cantidad": 10,
+          "precioUnitario": 9000,
+          "costoUnitario": 10000
+        },
+        {
+          "cantidad": 2,
+          "precioUnitario": 5000,
+          "costoUnitario": 4000
+        }
+      ],
+      "esperado": {
+        "importes": [
+          90000,
+          10000
+        ],
+        "subtotal": 100000,
+        "iva": 16000,
+        "total": 116000,
+        "costo": 108000,
+        "margen": -8000,
+        "margenPuntosBase": -800
+      }
+    },
+    {
+      "nombre": "sin partidas",
+      "tasaIvaPorciento": 16,
+      "lineas": [],
+      "esperado": {
+        "importes": [],
+        "subtotal": 0,
+        "iva": 0,
+        "total": 0,
+        "costo": 0,
+        "margen": 0,
+        "margenPuntosBase": null
+      }
+    },
+    {
+      "nombre": "importes grandes",
+      "tasaIvaPorciento": 16,
+      "lineas": [
+        {
+          "cantidad": 100,
+          "precioUnitario": 152439,
+          "costoUnitario": 125000
+        },
+        {
+          "cantidad": 100,
+          "precioUnitario": 201220,
+          "costoUnitario": 165000
+        },
+        {
+          "cantidad": 1,
+          "precioUnitario": 100000,
+          "costoUnitario": 65000
+        }
+      ],
+      "esperado": {
+        "importes": [
+          15243900,
+          20122000,
+          100000
+        ],
+        "subtotal": 35465900,
+        "iva": 5674544,
+        "total": 41140444,
+        "costo": 29065000,
+        "margen": 6400900,
+        "margenPuntosBase": 1805
+      }
+    },
+    {
+      "nombre": "tasa de iva distinta",
+      "tasaIvaPorciento": 8,
+      "lineas": [
+        {
+          "cantidad": 5,
+          "precioUnitario": 2500,
+          "costoUnitario": 2000
+        }
+      ],
+      "esperado": {
+        "importes": [
+          12500
+        ],
+        "subtotal": 12500,
+        "iva": 1000,
+        "total": 13500,
+        "costo": 10000,
+        "margen": 2500,
+        "margenPuntosBase": 2000
+      }
+    }
+  ]
+}

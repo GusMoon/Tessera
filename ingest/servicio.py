@@ -1,6 +1,8 @@
 """Servicio orquestador de ingesta de datos para Tessera."""
 
+import csv
 import hashlib
+import io
 import sqlite3
 from pathlib import Path
 from typing import Union, BinaryIO, Optional
@@ -9,18 +11,39 @@ from db.database import get_connection
 from ingest.lector_csv import procesar_csv_catalogo
 from ingest.lector_excel import procesar_excel_cotizaciones
 from ingest.lector_pdf import procesar_pdf_ficha
+from ingest.lector_servicios import es_tarifario, leer_texto_csv, procesar_csv_servicios
+
+# Permiso predeterminado de cada tipo de fuente (regla 6). Se puede indicar otro al cargar el archivo.
+PERMISOS = ("Todos", "Comercial", "Administración")
+PERMISO_POR_DEFECTO = {"catalogo": "Todos", "ficha": "Todos", "historial": "Comercial", "servicios": "Comercial"}
+
+
+def _es_csv_de_servicios(archivo_o_ruta) -> bool:
+    """El tarifario también es un CSV: se distingue del catálogo por sus encabezados."""
+    try:
+        encabezados = next(csv.reader(io.StringIO(leer_texto_csv(archivo_o_ruta))), [])
+    except (OSError, UnicodeDecodeError, csv.Error):
+        return False
+    return es_tarifario(encabezados)
 
 
 def procesar_archivo(
     archivo_o_ruta: Union[str, Path, BinaryIO, bytes],
     nombre_archivo: str,
-    conn: Optional[sqlite3.Connection] = None
+    conn: Optional[sqlite3.Connection] = None,
+    permiso: Optional[str] = None,
 ) -> dict:
     """
-    Procesa un archivo (CSV, XLSX o PDF), valida sus filas, guarda las válidas
+    Procesa un archivo (CSV de catálogo o de servicios, XLSX o PDF), valida sus filas, guarda las válidas
     en SQLite y registra los rechazos legibles en la tabla 'rechazos'.
     Actualiza la tabla 'fuentes' con el estado final y conteos exactos.
+    `permiso` ('Todos', 'Comercial' o 'Administración') define quién puede usar la fuente; si se omite,
+    se asigna el predeterminado de su tipo.
     """
+    if permiso is not None and permiso not in PERMISOS:
+        raise ValueError(f"Permiso no válido: {permiso!r}. Valores: {', '.join(PERMISOS)}.")
+    if hasattr(archivo_o_ruta, "read") and not isinstance(archivo_o_ruta, (str, Path, bytes)):
+        archivo_o_ruta = archivo_o_ruta.read()  # un flujo solo se puede leer una vez: se pasa a bytes
     cerrar_conn = False
     if conn is None:
         conn = get_connection()
@@ -31,12 +54,17 @@ def procesar_archivo(
         ext = Path(nombre_archivo).suffix.lower()
         if ext == ".csv":
             tipo_doc = "CSV"
+            es_servicios = _es_csv_de_servicios(archivo_o_ruta)
         elif ext in (".xlsx", ".xls"):
             tipo_doc = "Excel"
         elif ext == ".pdf":
             tipo_doc = "PDF"
         else:
             tipo_doc = "Desconocido"
+
+        clase = {"CSV": "servicios" if ext == ".csv" and es_servicios else "catalogo",
+                 "Excel": "historial", "PDF": "ficha"}.get(tipo_doc)
+        permiso_final = permiso or PERMISO_POR_DEFECTO.get(clase, "Todos")
 
         if tipo_doc == "Desconocido":
             return {
@@ -71,26 +99,32 @@ def procesar_archivo(
             fuente_id = row_fuente["id"]
             # Limpiar datos previos si se está reprocesando
             conn.execute("DELETE FROM catalogo WHERE fuente_id = ?", (fuente_id,))
+            conn.execute("DELETE FROM servicios WHERE fuente_id = ?", (fuente_id,))
+            conn.execute("DELETE FROM fragmentos_fts WHERE rowid IN (SELECT id FROM fragmentos WHERE fuente_id = ?)", (fuente_id,))
+            conn.execute("DELETE FROM fragmentos WHERE fuente_id = ?", (fuente_id,))
             conn.execute("DELETE FROM partidas_historicas WHERE cotizacion_id IN (SELECT id FROM cotizaciones_historicas WHERE fuente_id = ?)", (fuente_id,))
             conn.execute("DELETE FROM cotizaciones_historicas WHERE fuente_id = ?", (fuente_id,))
             conn.execute("DELETE FROM fichas_tecnicas WHERE fuente_id = ?", (fuente_id,))
             conn.execute("DELETE FROM rechazos WHERE fuente_id = ?", (fuente_id,))
             conn.execute(
                 """UPDATE fuentes 
-                   SET estado = 'Procesando', hash_archivo = ?, tamano_bytes = ?, fecha_carga = datetime('now', 'localtime')
+                   SET estado = 'Procesando', hash_archivo = ?, tamano_bytes = ?, permiso = ?,
+                       fecha_carga = datetime('now', 'localtime')
                    WHERE id = ?""",
-                (hash_str, tamano_bytes, fuente_id)
+                (hash_str, tamano_bytes, permiso_final, fuente_id)
             )
         else:
             cur = conn.execute(
-                """INSERT INTO fuentes (nombre, tipo, hash_archivo, tamano_bytes, estado, fecha_carga)
-                   VALUES (?, ?, ?, ?, 'Procesando', datetime('now', 'localtime'))""",
-                (nombre_archivo, tipo_doc, hash_str, tamano_bytes)
+                """INSERT INTO fuentes (nombre, tipo, hash_archivo, tamano_bytes, estado, fecha_carga, permiso)
+                   VALUES (?, ?, ?, ?, 'Procesando', datetime('now', 'localtime'), ?)""",
+                (nombre_archivo, tipo_doc, hash_str, tamano_bytes, permiso_final)
             )
             fuente_id = cur.lastrowid
 
         # Ejecutar lector según tipo
-        if tipo_doc == "CSV":
+        if tipo_doc == "CSV" and es_servicios:
+            metricas = procesar_csv_servicios(archivo_o_ruta, fuente_id, nombre_archivo, conn)
+        elif tipo_doc == "CSV":
             metricas = procesar_csv_catalogo(archivo_o_ruta, fuente_id, nombre_archivo, conn)
         elif tipo_doc == "Excel":
             metricas = procesar_excel_cotizaciones(archivo_o_ruta, fuente_id, nombre_archivo, conn)
@@ -127,7 +161,8 @@ def procesar_archivo(
             "guardadas": metricas["guardadas"],
             "rechazadas": metricas["rechazadas"],
             "omitidas": metricas["omitidas"],
-            "motivo": motivo_final
+            "motivo": motivo_final,
+            "permiso": permiso_final,
         }
 
     finally:

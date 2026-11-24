@@ -3,12 +3,29 @@
 import sqlite3
 import os
 from pathlib import Path
-from typing import Generator
 
 # Ruta predeterminada de la base de datos
 DB_DIR = Path(__file__).resolve().parent
 DB_PATH = DB_DIR / "tessera.db"
 SCHEMA_PATH = DB_DIR / "schema.sql"
+
+# Tablas que se llenan al cargar fuentes (se vacían con `vaciar_ingesta`). Hijas primero.
+TABLAS_INGESTA = [
+    "fragmentos_fts", "fragmentos", "rechazos", "fichas_tecnicas", "partidas_historicas",
+    "cotizaciones_historicas", "catalogo", "servicios", "fuentes",
+]
+# Tablas de trabajo del usuario (cotizaciones, aprobaciones, memoria, bitácora). Hijas primero.
+TABLAS_TRABAJO = [
+    "aprobaciones", "cotizacion_historial", "cotizacion_partidas", "cotizacion_escenarios",
+    "cotizaciones", "memoria", "bitacora", "usuarios",
+]
+
+# Usuarios de prueba (el prototipo no autentica: la identidad llega en la cabecera X-Usuario-Id).
+USUARIOS_PRUEBA = [
+    ("u1", "Ana Pérez", "Vendedor"),
+    ("u2", "Marcos Díaz", "Responsable comercial"),
+    ("u3", "Laura Canché", "Administrador"),
+]
 
 
 def get_db_path() -> Path:
@@ -27,8 +44,28 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
+def _columnas(conn: sqlite3.Connection, tabla: str) -> set[str]:
+    return {fila["name"] for fila in conn.execute(f"PRAGMA table_info({tabla})")}
+
+
+def _migrar(conn: sqlite3.Connection) -> None:
+    """Agrega a bases ya existentes las columnas nuevas (`CREATE TABLE IF NOT EXISTS` no las agrega)."""
+    if "permiso" not in _columnas(conn, "fuentes"):
+        conn.execute("ALTER TABLE fuentes ADD COLUMN permiso TEXT NOT NULL DEFAULT 'Todos'")
+
+
+def _sembrar_usuarios(conn: sqlite3.Connection) -> None:
+    conn.executemany("INSERT OR IGNORE INTO usuarios (id, nombre, rol) VALUES (?, ?, ?)", USUARIOS_PRUEBA)
+
+
+def _borrar_tablas(conn: sqlite3.Connection, tablas: list[str]) -> None:
+    for t in tablas:
+        conn.execute(f"DROP TABLE IF EXISTS {t};")
+
+
 def init_db(reset: bool = False) -> None:
-    """Inicializa las tablas ejecutando schema.sql. Si reset=True, borra la base antes."""
+    """Inicializa las tablas ejecutando schema.sql. Si reset=True, borra la base antes (todo, incluidas
+    cotizaciones, memoria y bitácora)."""
     db_file = get_db_path()
     if reset and db_file.exists():
         try:
@@ -40,13 +77,27 @@ def init_db(reset: bool = False) -> None:
     try:
         if reset:
             # En caso de que el archivo estuviera bloqueado para unlink, borramos tablas
-            tablas = ["rechazos", "fichas_tecnicas", "partidas_historicas", 
-                      "cotizaciones_historicas", "catalogo", "fuentes"]
-            for t in tablas:
-                conn.execute(f"DROP TABLE IF EXISTS {t};")
-        
+            _borrar_tablas(conn, TABLAS_TRABAJO + TABLAS_INGESTA)
+
         with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
             conn.executescript(f.read())
+        _migrar(conn)
+        _sembrar_usuarios(conn)
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def vaciar_ingesta() -> None:
+    """Vacía solo lo cargado desde «Fuentes» (y su índice). Conserva usuarios, cotizaciones, memoria y bitácora:
+    las partidas de una cotización guardan su propia copia de la fuente, así que no quedan huérfanas."""
+    conn = get_connection()
+    try:
+        _borrar_tablas(conn, TABLAS_INGESTA)
+        with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+            conn.executescript(f.read())
+        _migrar(conn)
+        _sembrar_usuarios(conn)
         conn.commit()
     finally:
         conn.close()

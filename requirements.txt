@@ -19,3 +19,7 @@ pypdf>=5.0.0
 # Generador de datos sintéticos y reportes técnicos
 faker>=30.0.0
 reportlab>=4.2.0
+# Búsqueda híbrida (Hito 2): FTS5 viene con SQLite; vectores con FAISS y embeddings multilingües.
+numpy>=2.0
+faiss-cpu>=1.8
+sentence-transformers>=3.0

@@ -30,7 +30,7 @@ def main() -> int:
         proveedor = crear_proveedor(config)
         print(f"Modelos configurados:  {', '.join(proveedor.modelos)}")
         print(f"Pregunta de prueba:    {PREGUNTA!r}")
-        respuesta = proveedor.completar([{"role": "user", "content": PREGUNTA}], max_tokens=20)
+        respuesta = proveedor.completar([{"role": "user", "content": PREGUNTA}], max_tokens=256)  # holgado: un modelo de razonamiento gasta tokens pensando antes de responder
     except ErrorLLM as exc:
         print(f"\nError: {exc}")
         print("Resultado: FALLIDO")

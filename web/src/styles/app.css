@@ -260,12 +260,51 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .girando { width: 14px; height: 14px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: gira 0.8s linear infinite; }
 @keyframes gira { to { transform: rotate(360deg); } }
 .chat__entrada {
-  display: flex; gap: var(--e-3); align-items: flex-end; width: min(760px, calc(100% - 2 * var(--e-3))); margin: 0 auto; padding: var(--e-2) var(--e-2) var(--e-2) var(--e-4);
+  display: flex; gap: var(--e-2); align-items: flex-end; width: min(760px, calc(100% - 2 * var(--e-3))); margin: 0 auto; padding: var(--e-2);
   background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-flotante); box-shadow: var(--sombra-flotante);
 }
 .chat__entrada:focus-within { border-color: var(--accent); }
-.chat__entrada textarea { flex: 1; resize: none; padding: var(--e-2) 0; background: transparent; border: 0; outline: none; font-size: var(--t-16); }
-.chat__nota { margin: var(--e-2) 0 var(--e-1); font-size: var(--t-12); text-align: center; }
+.chat__entrada textarea { flex: 1; min-width: 0; resize: none; min-height: 40px; max-height: 160px; padding: 8px var(--e-2); line-height: 24px; text-align: left; background: transparent; border: 0; outline: none; font-size: var(--t-16); overflow-y: auto; }
+.chat__entrada .boton-icono, .chat__enviar { height: 40px; flex: none; }
+.chat__enviar { padding: 0 var(--e-4); }
+.chat__nota { width: min(760px, calc(100% - 2 * var(--e-3))); margin: var(--e-2) auto var(--e-2); font-size: var(--t-12); line-height: 1.4; text-align: center; text-wrap: balance; }
+.chat--arrastrando { outline: 2px dashed var(--accent); outline-offset: -8px; }
+.mensaje__texto { white-space: pre-wrap; overflow-wrap: anywhere; }
+.mensaje--error .mensaje__texto { color: var(--error); }
+.chat__adjuntos { display: flex; flex-wrap: wrap; gap: var(--e-2); margin-top: var(--e-2); }
+.chat__aviso { display: flex; align-items: center; gap: var(--e-2); margin-top: var(--e-2); font-size: var(--t-14); color: var(--warn); }
+.chat__meta { display: block; margin-top: var(--e-2); font-size: var(--t-12); color: var(--muted); }
+.chat__pendientes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); width: min(760px, calc(100% - 2 * var(--e-3))); margin: 0 auto var(--e-2); }
+.chat__quitar { display: inline-flex; background: none; border: 0; padding: 0 0 0 var(--e-1); cursor: pointer; color: var(--muted); }
+.chat__quitar:hover { color: var(--error); }
+.chat__pista { font-size: var(--t-12); }
+.chat__acciones { display: flex; align-items: center; gap: var(--e-3); }
+/* Indicador de uso del modelo: compacto, en la esquina superior derecha del chat */
+.medidor { position: relative; }
+.medidor__boton {
+  display: inline-flex; align-items: center; gap: var(--e-2); min-height: 36px; padding: 0 var(--e-3);
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-pildora);
+  color: var(--fg); font-size: var(--t-12); cursor: pointer; white-space: nowrap;
+  transition: border-color var(--mov-corto) ease;
+}
+.medidor__boton:hover, .medidor__boton[aria-expanded='true'] { border-color: var(--accent); }
+.medidor__punto { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.medidor__boton--ok .medidor__punto { background: var(--ok); }
+.medidor__boton--warn .medidor__punto { background: var(--warn); }
+.medidor__boton--error .medidor__punto { background: var(--error); }
+.medidor__cuota { color: var(--muted); padding-left: var(--e-2); border-left: 1px solid var(--line-strong); }
+.medidor__detalle {
+  position: absolute; right: 0; top: calc(100% + var(--e-2)); z-index: 30;
+  width: min(420px, calc(100vw - 2 * var(--e-3))); padding: var(--e-4);
+  display: flex; flex-direction: column; gap: var(--e-3); font-size: var(--t-14); line-height: 1.45;
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-superficie); box-shadow: var(--sombra-flotante);
+}
+.medidor__nota { font-size: var(--t-12); }
+.medidor__barra { height: 4px; margin-top: var(--e-2); border-radius: var(--r-pildora); background: var(--line); overflow: hidden; }
+.medidor__barra span { display: block; height: 100%; background: currentColor; transition: width var(--mov-corto) ease; }
+.medidor__barra--ok, .medidor__barra--neutro { color: var(--ok); }
+.medidor__barra--warn { color: var(--warn); }
+.medidor__barra--error { color: var(--error); }
 .tarjeta-cot { margin-top: var(--e-3); padding: var(--e-4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-superficie); display: flex; flex-direction: column; gap: var(--e-2); align-items: flex-start; font-size: var(--t-14); line-height: 1.5; }
 .tarjeta-cot__fila { display: flex; gap: var(--e-3); align-items: center; }
 .tarjeta-cot__escenarios { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--e-3); width: 100%; margin: var(--e-2) 0; }

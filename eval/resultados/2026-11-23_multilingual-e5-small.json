@@ -1,0 +1,1113 @@
+{
+  "fecha": "2026-11-23",
+  "hito": 2,
+  "embedder": "intfloat/multilingual-e5-small",
+  "segundos_carga_modelo": 34.47,
+  "hardware": {
+    "procesador": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+    "nucleos": 12,
+    "ram_gb": 23.7,
+    "sistema": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.3"
+  },
+  "metas": {
+    "mediana_ms": 500.0,
+    "exactitud": 50,
+    "top5_pct": 80.0,
+    "fuentes_pct": 100.0
+  },
+  "resumen": {
+    "mediana_ms": 199.7,
+    "p95_ms": 304.7,
+    "primer_caso_ms": 210.6,
+    "maximo_ms": 370.0,
+    "exactitud": 50,
+    "renglones_correctos": 50,
+    "servicios_correctos": 50,
+    "completas": 50,
+    "top5": 50,
+    "top1": 33,
+    "con_fuentes": 50,
+    "top5_pct": 100.0,
+    "top1_pct": 66.0,
+    "fuentes_pct": 100.0
+  },
+  "aprobado": true,
+  "criterios": [
+    {
+      "nombre": "Latencia mediana (recuperación + cálculo)",
+      "medido": "199.7 ms (p95 304.7 ms, máx 370.0 ms)",
+      "meta": "< 500 ms",
+      "ok": true
+    },
+    {
+      "nombre": "Exactitud de totales",
+      "medido": "50 de 50",
+      "meta": "50 de 50",
+      "ok": true
+    },
+    {
+      "nombre": "Cotización parecida en el top-5",
+      "medido": "50 de 50 (100.0 %; top-1: 66.0 %)",
+      "meta": "≥ 80 %",
+      "ok": true
+    },
+    {
+      "nombre": "Respuestas con al menos una fuente",
+      "medido": "50 de 50 (100.0 %)",
+      "meta": "100 %",
+      "ok": true
+    }
+  ],
+  "casos": [
+    {
+      "id": "C01",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 210.6,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0125",
+        "COT-MID-0101",
+        "COT-MID-0113",
+        "COT-MID-0105",
+        "COT-MID-0117"
+      ]
+    },
+    {
+      "id": "C02",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 258.4,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0113",
+        "COT-MID-0125",
+        "COT-MID-0101",
+        "COT-MID-0114",
+        "COT-MID-0123"
+      ]
+    },
+    {
+      "id": "C03",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 246.3,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0114",
+        "COT-MID-0126",
+        "COT-MID-0102",
+        "COT-MID-0113",
+        "COT-MID-0125"
+      ]
+    },
+    {
+      "id": "C04",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 246.6,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0114",
+        "COT-MID-0126",
+        "COT-MID-0102",
+        "COT-MID-0127",
+        "COT-MID-0103"
+      ]
+    },
+    {
+      "id": "C05",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 228.4,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0103",
+        "COT-MID-0115",
+        "COT-MID-0127",
+        "COT-MID-0104",
+        "COT-MID-0116"
+      ]
+    },
+    {
+      "id": "C06",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 213.7,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0104",
+        "COT-MID-0116",
+        "COT-MID-0103",
+        "COT-MID-0127",
+        "COT-MID-0128"
+      ]
+    },
+    {
+      "id": "C07",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 210.3,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0105",
+        "COT-MID-0117",
+        "COT-MID-0116",
+        "COT-MID-0101",
+        "COT-MID-0113"
+      ]
+    },
+    {
+      "id": "C08",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 370.0,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0106",
+        "COT-MID-0118",
+        "COT-MID-0117",
+        "COT-MID-0107",
+        "COT-MID-0119"
+      ]
+    },
+    {
+      "id": "C09",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 304.7,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0107",
+        "COT-MID-0119",
+        "COT-MID-0108",
+        "COT-MID-0120",
+        "COT-MID-0109"
+      ]
+    },
+    {
+      "id": "C10",
+      "autor": "Gustavo",
+      "estado": "completa",
+      "ms": 338.3,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0108",
+        "COT-MID-0120",
+        "COT-MID-0109",
+        "COT-MID-0119",
+        "COT-MID-0107"
+      ]
+    },
+    {
+      "id": "C11",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 228.5,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0109",
+        "COT-MID-0121",
+        "COT-MID-0108",
+        "COT-MID-0120",
+        "COT-MID-0115"
+      ]
+    },
+    {
+      "id": "C12",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 193.5,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0110",
+        "COT-MID-0122",
+        "COT-MID-0125",
+        "COT-MID-0113",
+        "COT-MID-0126"
+      ]
+    },
+    {
+      "id": "C13",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 224.9,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0111",
+        "COT-MID-0123",
+        "COT-MID-0110",
+        "COT-MID-0122",
+        "COT-MID-0113"
+      ]
+    },
+    {
+      "id": "C14",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 115.9,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0112",
+        "COT-MID-0124",
+        "COT-MID-0107",
+        "COT-MID-0108",
+        "COT-MID-0119"
+      ]
+    },
+    {
+      "id": "C15",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 210.3,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0114",
+        "COT-MID-0102",
+        "COT-MID-0126",
+        "COT-MID-0115",
+        "COT-MID-0127"
+      ]
+    },
+    {
+      "id": "C16",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 221.7,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0116",
+        "COT-MID-0104",
+        "COT-MID-0105",
+        "COT-MID-0103",
+        "COT-MID-0128"
+      ]
+    },
+    {
+      "id": "C17",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 197.4,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0117",
+        "COT-MID-0105",
+        "COT-MID-0118",
+        "COT-MID-0106",
+        "COT-MID-0113"
+      ]
+    },
+    {
+      "id": "C18",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 248.0,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0118",
+        "COT-MID-0106",
+        "COT-MID-0107",
+        "COT-MID-0117",
+        "COT-MID-0119"
+      ]
+    },
+    {
+      "id": "C19",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 193.5,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0107",
+        "COT-MID-0119",
+        "COT-MID-0108",
+        "COT-MID-0120",
+        "COT-MID-0124"
+      ]
+    },
+    {
+      "id": "C20",
+      "autor": "Jorge",
+      "estado": "completa",
+      "ms": 282.5,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0120",
+        "COT-MID-0108",
+        "COT-MID-0107",
+        "COT-MID-0109",
+        "COT-MID-0121"
+      ]
+    },
+    {
+      "id": "C21",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 202.0,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0108",
+        "COT-MID-0120",
+        "COT-MID-0128",
+        "COT-MID-0115",
+        "COT-MID-0107"
+      ]
+    },
+    {
+      "id": "C22",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 211.6,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0109",
+        "COT-MID-0121",
+        "COT-MID-0120",
+        "COT-MID-0108",
+        "COT-MID-0110"
+      ]
+    },
+    {
+      "id": "C23",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 162.5,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0122",
+        "COT-MID-0110",
+        "COT-MID-0111",
+        "COT-MID-0123",
+        "COT-MID-0115"
+      ]
+    },
+    {
+      "id": "C24",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 193.5,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0111",
+        "COT-MID-0123",
+        "COT-MID-0110",
+        "COT-MID-0122",
+        "COT-MID-0116"
+      ]
+    },
+    {
+      "id": "C25",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 195.1,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0113",
+        "COT-MID-0125",
+        "COT-MID-0101",
+        "COT-MID-0102",
+        "COT-MID-0110"
+      ]
+    },
+    {
+      "id": "C26",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 207.7,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0115",
+        "COT-MID-0127",
+        "COT-MID-0103",
+        "COT-MID-0128",
+        "COT-MID-0104"
+      ]
+    },
+    {
+      "id": "C27",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 153.1,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0128",
+        "COT-MID-0104",
+        "COT-MID-0116",
+        "COT-MID-0127",
+        "COT-MID-0115"
+      ]
+    },
+    {
+      "id": "C28",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 173.8,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0115",
+        "COT-MID-0103",
+        "COT-MID-0127",
+        "COT-MID-0104",
+        "COT-MID-0128"
+      ]
+    },
+    {
+      "id": "C29",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 101.9,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0124",
+        "COT-MID-0104",
+        "COT-MID-0112",
+        "COT-MID-0114",
+        "COT-MID-0108"
+      ]
+    },
+    {
+      "id": "C30",
+      "autor": "Erick",
+      "estado": "completa",
+      "ms": 189.2,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0102",
+        "COT-MID-0126",
+        "COT-MID-0114",
+        "COT-MID-0103",
+        "COT-MID-0127"
+      ]
+    },
+    {
+      "id": "C31",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 273.0,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0101",
+        "COT-MID-0125",
+        "COT-MID-0113",
+        "COT-MID-0111",
+        "COT-MID-0121"
+      ]
+    },
+    {
+      "id": "C32",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 217.5,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0114",
+        "COT-MID-0102",
+        "COT-MID-0126",
+        "COT-MID-0103",
+        "COT-MID-0115"
+      ]
+    },
+    {
+      "id": "C33",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 209.3,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0103",
+        "COT-MID-0115",
+        "COT-MID-0127",
+        "COT-MID-0104",
+        "COT-MID-0116"
+      ]
+    },
+    {
+      "id": "C34",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 207.0,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0105",
+        "COT-MID-0117",
+        "COT-MID-0116",
+        "COT-MID-0115",
+        "COT-MID-0103"
+      ]
+    },
+    {
+      "id": "C35",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 186.1,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0118",
+        "COT-MID-0106",
+        "COT-MID-0117",
+        "COT-MID-0107",
+        "COT-MID-0119"
+      ]
+    },
+    {
+      "id": "C36",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 167.6,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0107",
+        "COT-MID-0119",
+        "COT-MID-0120",
+        "COT-MID-0108",
+        "COT-MID-0124"
+      ]
+    },
+    {
+      "id": "C37",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 176.7,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0109",
+        "COT-MID-0121",
+        "COT-MID-0108",
+        "COT-MID-0120",
+        "COT-MID-0119"
+      ]
+    },
+    {
+      "id": "C38",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 166.6,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0110",
+        "COT-MID-0122",
+        "COT-MID-0113",
+        "COT-MID-0125",
+        "COT-MID-0116"
+      ]
+    },
+    {
+      "id": "C39",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 165.7,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0109",
+        "COT-MID-0121",
+        "COT-MID-0120",
+        "COT-MID-0124",
+        "COT-MID-0108"
+      ]
+    },
+    {
+      "id": "C40",
+      "autor": "Anyeli",
+      "estado": "completa",
+      "ms": 160.7,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0113",
+        "COT-MID-0125",
+        "COT-MID-0101",
+        "COT-MID-0114",
+        "COT-MID-0102"
+      ]
+    },
+    {
+      "id": "C41",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 115.8,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0117",
+        "COT-MID-0105",
+        "COT-MID-0106",
+        "COT-MID-0103",
+        "COT-MID-0118"
+      ]
+    },
+    {
+      "id": "C42",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 126.6,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0123",
+        "COT-MID-0111",
+        "COT-MID-0116",
+        "COT-MID-0110",
+        "COT-MID-0126"
+      ]
+    },
+    {
+      "id": "C43",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 136.1,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0102",
+        "COT-MID-0114",
+        "COT-MID-0126",
+        "COT-MID-0113",
+        "COT-MID-0101"
+      ]
+    },
+    {
+      "id": "C44",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 145.2,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0107",
+        "COT-MID-0123",
+        "COT-MID-0119",
+        "COT-MID-0111",
+        "COT-MID-0110"
+      ]
+    },
+    {
+      "id": "C45",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 137.9,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0119",
+        "COT-MID-0107",
+        "COT-MID-0118",
+        "COT-MID-0109",
+        "COT-MID-0106"
+      ]
+    },
+    {
+      "id": "C46",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 147.3,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0110",
+        "COT-MID-0122",
+        "COT-MID-0126",
+        "COT-MID-0114",
+        "COT-MID-0111"
+      ]
+    },
+    {
+      "id": "C47",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 223.9,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0109",
+        "COT-MID-0121",
+        "COT-MID-0120",
+        "COT-MID-0119",
+        "COT-MID-0124"
+      ]
+    },
+    {
+      "id": "C48",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 146.1,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": false,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0113",
+        "COT-MID-0101",
+        "COT-MID-0125",
+        "COT-MID-0105",
+        "COT-MID-0117"
+      ]
+    },
+    {
+      "id": "C49",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 237.4,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0120",
+        "COT-MID-0108",
+        "COT-MID-0119",
+        "COT-MID-0107",
+        "COT-MID-0109"
+      ]
+    },
+    {
+      "id": "C50",
+      "autor": "Jhoana",
+      "estado": "completa",
+      "ms": 145.5,
+      "preguntas": [],
+      "exacto": true,
+      "renglones_ok": true,
+      "servicios_ok": true,
+      "top5": true,
+      "top1": true,
+      "con_fuentes": true,
+      "folios_devueltos": [
+        "COT-MID-0113",
+        "COT-MID-0125",
+        "COT-MID-0101",
+        "COT-MID-0118",
+        "COT-MID-0105"
+      ]
+    }
+  ],
+  "llm": {
+    "disponible": true,
+    "modo": "llm",
+    "casos": [
+      {
+        "id": "C01",
+        "origen": "llm",
+        "segundos": 2.07,
+        "aviso": null
+      },
+      {
+        "id": "C02",
+        "origen": "llm",
+        "segundos": 0.92,
+        "aviso": null
+      },
+      {
+        "id": "C03",
+        "origen": "llm",
+        "segundos": 0.82,
+        "aviso": null
+      }
+    ]
+  },
+  "demo": {
+    "disponible": true,
+    "modo": "demo",
+    "casos": [
+      {
+        "id": "C01",
+        "origen": "demo",
+        "segundos": 0.22,
+        "aviso": null
+      },
+      {
+        "id": "C02",
+        "origen": "demo",
+        "segundos": 0.13,
+        "aviso": null
+      },
+      {
+        "id": "C03",
+        "origen": "demo",
+        "segundos": 0.12,
+        "aviso": null
+      }
+    ]
+  },
+  "advertencia": "Casos redactados por Claude (borrador) y usados durante el desarrollo del intérprete, no reservados; historial de 28 folios con varios casi idénticos."
+}

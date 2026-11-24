@@ -1,0 +1,16 @@
+Codigo,Servicio,Tipo,Unidad,Precio_Unitario,Zona,Incluir_En,Fecha_Precio,Notas
+SRV-FLE-MER,Flete a obra en Mérida y zona conurbada,Flete,viaje,$650.00 MXN,Mérida,todos,2026-11-01,Camioneta 3.5 t
+SRV-FLE-KAN,Flete a obra en Kanasín,Flete,viaje,780.00,Kanasín,todos,17/10/2026,Camioneta 3.5 t
+SRV-FLE-UMA,Flete a obra en Umán,Flete,viaje,820.00,Umán,todos,17-10-2026,Camioneta 3.5 t
+SRV-FLE-PRO,Flete a obra en Progreso,Flete,viaje,"$ 1,150.00",Progreso,todos,04/10/2026,Incluye maniobra de descarga
+SRV-FLE-MOT,Flete a obra en Motul,Flete,viaje,"$ 1,350.00",Motul,todos,21/03/2026,Tarifa por confirmar con transportista
+SRV-FLE-IZA,Flete a obra en Izamal,Flete,viaje,"$ 1,650.00",Izamal,todos,2026-09-20,
+SRV-FLE-VAL,Flete a obra en Valladolid,Flete,viaje,"$2,400.00 MXN",Valladolid,todos,2026-04-05,Tarifa de 2025
+SRV-FLE-TIZ,Flete a obra en Tizimín,Flete,viaje,"$ 2,900.00",Tizimín,todos,11/10/2026,
+SRV-INS-GAB,Instalación de gabinete metálico (hasta 60 cm),Instalación,pza,$ 480.00,,todos,25-10-2026,Incluye fijación y nivelación
+SRV-INS-TAB,Instalación de tablero o centro de carga,Instalación,pza,$ 650.00,,todos,25/10/2026,No incluye acometida
+SRV-INS-CON,Instalación de canalización con tubo conduit,Instalación,m,$ 38.00,,todos,2026-08-23,Hasta 3 m de altura
+SRV-INS-LUM,Instalación de luminaria industrial,Instalación,pza,$ 320.00,,todos,2026-04-20,Tarifa de 2025
+SRV-INS-INT,Instalación de interruptor termomagnético,Instalación,pza,190.00,,todos,25/10/2026,
+SRV-OPC-SUP,Supervisión en obra (visita técnica),Opcional,visita,"$1,800.00 MXN",,premium,19-10-2026,Solo en escenario premium
+SRV-OPC-GAR,Garantía extendida de 12 meses,Opcional,servicio,"$2,500.00 MXN",,premium,19/10/2026,Solo en escenario premium

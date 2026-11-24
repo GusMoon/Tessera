@@ -51,9 +51,13 @@ def ejecutar_verificacion():
     dir_synthetic = ROOT_DIR / "data" / "synthetic"
     ruta_csv = dir_synthetic / "catalogo_materiales.csv"
     ruta_xlsx = dir_synthetic / "historial_cotizaciones.xlsx"
+    ruta_tarifario = dir_synthetic / "tarifario_servicios.csv"
     dir_fichas = dir_synthetic / "fichas_tecnicas"
 
     archivos_a_procesar = [ruta_csv, ruta_xlsx]
+    esperado_tarifario = resumen_esperado.get("tarifario_servicios")
+    if esperado_tarifario and ruta_tarifario.exists():
+        archivos_a_procesar.append(ruta_tarifario)
     archivos_pdf = sorted(list(dir_fichas.glob("*.pdf")))
     archivos_a_procesar.extend(archivos_pdf)
 
@@ -61,6 +65,8 @@ def ejecutar_verificacion():
     print(f"      - 1 CSV Catálogo ({resumen_esperado['catalogo_csv']['total_filas']} filas)")
     print(f"      - 1 XLSX Historial ({resumen_esperado['historial_xlsx']['total_filas']} filas)")
     print(f"      - {len(archivos_pdf)} Fichas técnicas en PDF")
+    if esperado_tarifario:
+        print(f"      - 1 CSV Tarifario de servicios ({esperado_tarifario['total_filas']} filas)")
 
     # Iniciar cronómetro
     t_inicio = time.perf_counter()
@@ -87,6 +93,7 @@ def ejecutar_verificacion():
         total_cotizaciones = conn.execute("SELECT COUNT(*) as c FROM cotizaciones_historicas").fetchone()["c"]
         total_partidas = conn.execute("SELECT COUNT(*) as c FROM partidas_historicas").fetchone()["c"]
         total_fichas = conn.execute("SELECT COUNT(*) as c FROM fichas_tecnicas").fetchone()["c"]
+        total_servicios = conn.execute("SELECT COUNT(*) as c FROM servicios").fetchone()["c"]
         total_rechazos = conn.execute("SELECT COUNT(*) as c FROM rechazos").fetchone()["c"]
 
         # Filas con precios desactualizados (> 6 meses)
@@ -135,6 +142,12 @@ def ejecutar_verificacion():
     ok_rechazos = (total_rechazos == rechazos_esperados_n)
     print(f" {'Filas defectuosas rechazadas':<35} | {rechazos_esperados_n:<12} | {total_rechazos:<12} | {'✓ CORRECTO' if ok_rechazos else '✗ ERROR'}")
 
+    ok_servicios = True
+    if esperado_tarifario:
+        val_srv_esperado = esperado_tarifario["filas_validas"]
+        ok_servicios = (total_servicios == val_srv_esperado)
+        print(f" {'Tarifario de servicios (guardados)':<35} | {val_srv_esperado:<12} | {total_servicios:<12} | {'✓ CORRECTO' if ok_servicios else '✗ ERROR'}")
+
     ok_tiempo = (duracion_segundos < 60.0)
     print(f" {'Tiempo de ingesta total':<35} | {'< 60.00 s':<12} | {f'{duracion_segundos:.3f} s':<12} | {'✓ CORRECTO' if ok_tiempo else '✗ ERROR'}")
 
@@ -162,7 +175,7 @@ def ejecutar_verificacion():
     ok_detalle_rechazos = (coincidencias_rechazos == 8)
 
     # Veredicto final
-    todo_aprobado = (ok_csv and ok_xlsx and ok_pdf and ok_rechazos and ok_tiempo and ok_detalle_rechazos)
+    todo_aprobado = (ok_csv and ok_xlsx and ok_pdf and ok_servicios and ok_rechazos and ok_tiempo and ok_detalle_rechazos)
 
     print("\n" + "=" * 70)
     if todo_aprobado:

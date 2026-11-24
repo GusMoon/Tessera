@@ -1,0 +1,2300 @@
+{
+  "version": 1,
+  "nota": "BORRADOR redactado por Claude a partir del dataset sintético. El documento del plan pide que el equipo escriba estos 50 casos (10 por persona): reemplázalos o revísalos antes de reportar resultados como definitivos. «esperado» lo calcula eval/referencia.py (independiente de agent/tools): python eval/referencia.py --actualizar.",
+  "casos": [
+    {
+      "id": "C01",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Necesito 10 gabinetes NEMA 1 de 30x30x15, 2 gabinetes NEMA 4X de 40x30x20 y 2 autosoportados NEMA 12 de 50x40x20. Entrega en Mérida.",
+      "renglones": [
+        {
+          "sku": "GAB-303015",
+          "cantidad": 10
+        },
+        {
+          "sku": "GAB-403020",
+          "cantidad": 2
+        },
+        {
+          "sku": "GAB-504020",
+          "cantidad": 2
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-MER",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0101",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1964774,
+          "iva_centavos": 314364,
+          "total_centavos": 2279138
+        },
+        "recomendado": {
+          "subtotal_centavos": 2108542,
+          "iva_centavos": 337367,
+          "total_centavos": 2445909
+        },
+        "premium": {
+          "subtotal_centavos": 2878664,
+          "iva_centavos": 460586,
+          "total_centavos": 3339250
+        }
+      }
+    },
+    {
+      "id": "C02",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Cotización para Instalaciones Eléctricas Industriales de Yucatán: 20 gabinetes sobreponer NEMA 1 30x30x15, 10 gabinetes NEMA 4X 40x30x20, 5 gabinetes autosoportados NEMA 12 y 15 rollos de cable THW calibre 12 negro. Con instalación de los gabinetes y flete a Kanasín",
+      "renglones": [
+        {
+          "sku": "GAB-303015",
+          "cantidad": 20
+        },
+        {
+          "sku": "GAB-403020",
+          "cantidad": 10
+        },
+        {
+          "sku": "GAB-504020",
+          "cantidad": 5
+        },
+        {
+          "sku": "CAB-THW-12N",
+          "cantidad": 15
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-GAB",
+          "cantidad": 35
+        },
+        {
+          "codigo": "SRV-FLE-KAN",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0113",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 9310206,
+          "iva_centavos": 1489633,
+          "total_centavos": 10799839
+        },
+        "recomendado": {
+          "subtotal_centavos": 9991492,
+          "iva_centavos": 1598639,
+          "total_centavos": 11590131
+        },
+        "premium": {
+          "subtotal_centavos": 11497333,
+          "iva_centavos": 1839573,
+          "total_centavos": 13336906
+        }
+      }
+    },
+    {
+      "id": "C03",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "veinte rollos de cable THW calibre 12 rojo, cien rollos de cable calibre 10 blanco, cincuenta rollos de cable calibre 8 verde y 20 tubos conduit pared delgada de 3/4",
+      "renglones": [
+        {
+          "sku": "CAB-THW-12R",
+          "cantidad": 20
+        },
+        {
+          "sku": "CAB-THW-10B",
+          "cantidad": 100
+        },
+        {
+          "sku": "CAB-THW-08V",
+          "cantidad": 50
+        },
+        {
+          "sku": "TUB-CND-075",
+          "cantidad": 20
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0102",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 41579540,
+          "iva_centavos": 6652726,
+          "total_centavos": 48232266
+        },
+        "recomendado": {
+          "subtotal_centavos": 44621990,
+          "iva_centavos": 7139518,
+          "total_centavos": 51761508
+        },
+        "premium": {
+          "subtotal_centavos": 49359983,
+          "iva_centavos": 7897597,
+          "total_centavos": 57257580
+        }
+      }
+    },
+    {
+      "id": "C04",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "2 rollos cable THW 12 AWG rojo, 5 rollos cable THW 10 AWG blanco, 10 rollos cable THW 8 AWG verde y 20 tramos de tubo conduit galvanizado pared delgada 3/4 pulg. Flete a Progreso.",
+      "renglones": [
+        {
+          "sku": "CAB-THW-12R",
+          "cantidad": 2
+        },
+        {
+          "sku": "CAB-THW-10B",
+          "cantidad": 5
+        },
+        {
+          "sku": "CAB-THW-08V",
+          "cantidad": 10
+        },
+        {
+          "sku": "TUB-CND-075",
+          "cantidad": 20
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-PRO",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0126",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 5204537,
+          "iva_centavos": 832726,
+          "total_centavos": 6037263
+        },
+        "recomendado": {
+          "subtotal_centavos": 5585372,
+          "iva_centavos": 893660,
+          "total_centavos": 6479032
+        },
+        "premium": {
+          "subtotal_centavos": 6679990,
+          "iva_centavos": 1068798,
+          "total_centavos": 7748788
+        }
+      }
+    },
+    {
+      "id": "C05",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "15 tramos de tubo conduit galvanizado 1 pulgada pared delgada, 20 tramos de tubo conduit pared gruesa 3/4 y 100 de pared gruesa 1 pulg, más 20 coples conduit 3/4. Instalación de la canalización y flete a Umán.",
+      "renglones": [
+        {
+          "sku": "TUB-CND-100",
+          "cantidad": 15
+        },
+        {
+          "sku": "TUB-CND-G075",
+          "cantidad": 20
+        },
+        {
+          "sku": "TUB-CND-G100",
+          "cantidad": 100
+        },
+        {
+          "sku": "COP-CND-075",
+          "cantidad": 20
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-CON",
+          "cantidad": 405
+        },
+        {
+          "codigo": "SRV-FLE-UMA",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0103",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 7998192,
+          "iva_centavos": 1279711,
+          "total_centavos": 9277903
+        },
+        "recomendado": {
+          "subtotal_centavos": 8583450,
+          "iva_centavos": 1373352,
+          "total_centavos": 9956802
+        },
+        "premium": {
+          "subtotal_centavos": 9958106,
+          "iva_centavos": 1593297,
+          "total_centavos": 11551403
+        }
+      }
+    },
+    {
+      "id": "C06",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Se requieren 100 coples conduit 1 pulgada, 20 conectores conduit 3/4, 50 conectores conduit 1 pulgada y 2 abrazaderas tipo uña 3/4",
+      "renglones": [
+        {
+          "sku": "COP-CND-100",
+          "cantidad": 100
+        },
+        {
+          "sku": "CON-CND-075",
+          "cantidad": 20
+        },
+        {
+          "sku": "CON-CND-100",
+          "cantidad": 50
+        },
+        {
+          "sku": "ABR-UNA-075",
+          "cantidad": 2
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0104",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 357098,
+          "iva_centavos": 57136,
+          "total_centavos": 414234
+        },
+        "recomendado": {
+          "subtotal_centavos": 383276,
+          "iva_centavos": 61324,
+          "total_centavos": 444600
+        },
+        "premium": {
+          "subtotal_centavos": 992407,
+          "iva_centavos": 158785,
+          "total_centavos": 1151192
+        }
+      }
+    },
+    {
+      "id": "C07",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "100 abrazaderas de uña de 1 pulgada, 2 centros de carga 4 polos bifásico, 100 centros de carga 8 polos trifásico sobreponer y 15 de 12 polos trifásico",
+      "renglones": [
+        {
+          "sku": "ABR-UNA-100",
+          "cantidad": 100
+        },
+        {
+          "sku": "CC-4P-BIF",
+          "cantidad": 2
+        },
+        {
+          "sku": "CC-8P-TRI",
+          "cantidad": 100
+        },
+        {
+          "sku": "CC-12P-TRI",
+          "cantidad": 15
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0105",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 12626125,
+          "iva_centavos": 2020180,
+          "total_centavos": 14646305
+        },
+        "recomendado": {
+          "subtotal_centavos": 13550084,
+          "iva_centavos": 2168013,
+          "total_centavos": 15718097
+        },
+        "premium": {
+          "subtotal_centavos": 15388033,
+          "iva_centavos": 2462085,
+          "total_centavos": 17850118
+        }
+      }
+    },
+    {
+      "id": "C08",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "15 interruptores termomagnéticos 1P 20A, 100 de 1P 30A, 5 de 2P 30A y 50 de 3P 60A, y 50 cajas de registro FS 3/4 galvanizadas. Instalación de los interruptores.",
+      "renglones": [
+        {
+          "sku": "INT-TM-120",
+          "cantidad": 15
+        },
+        {
+          "sku": "INT-TM-130",
+          "cantidad": 100
+        },
+        {
+          "sku": "INT-TM-230",
+          "cantidad": 5
+        },
+        {
+          "sku": "INT-TM-360",
+          "cantidad": 50
+        },
+        {
+          "sku": "CAJ-FS-075",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-INT",
+          "cantidad": 170
+        }
+      ],
+      "folio_parecido": "COT-MID-0106",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 12269875,
+          "iva_centavos": 1963180,
+          "total_centavos": 14233055
+        },
+        "recomendado": {
+          "subtotal_centavos": 13167675,
+          "iva_centavos": 2106828,
+          "total_centavos": 15274503
+        },
+        "premium": {
+          "subtotal_centavos": 14969903,
+          "iva_centavos": 2395184,
+          "total_centavos": 17365087
+        }
+      }
+    },
+    {
+      "id": "C09",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Cotiza 5 cajas registro FD doble fondo 3/4, 20 cajas cuadradas chalupa 4x4, 5 tapas ciegas 4x4 y 50 tubos PVC hidráulico de 1/2 pulgada. Entrega en Motul",
+      "renglones": [
+        {
+          "sku": "CAJ-FD-075",
+          "cantidad": 5
+        },
+        {
+          "sku": "CAJ-CH-4X4",
+          "cantidad": 20
+        },
+        {
+          "sku": "TAP-CH-4X4",
+          "cantidad": 5
+        },
+        {
+          "sku": "TUB-PVC-H050",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-MOT",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0107",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 949714,
+          "iva_centavos": 151954,
+          "total_centavos": 1101668
+        },
+        "recomendado": {
+          "subtotal_centavos": 1019194,
+          "iva_centavos": 163071,
+          "total_centavos": 1182265
+        },
+        "premium": {
+          "subtotal_centavos": 1687643,
+          "iva_centavos": 270023,
+          "total_centavos": 1957666
+        }
+      }
+    },
+    {
+      "id": "C10",
+      "autor": "Gustavo",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Pedido de PVC: 5 tubos PVC hidráulico 3/4, 15 de 1 pulg, 50 de 2 pulg y 50 tubos PVC sanitario de 4 pulgadas (100 mm)",
+      "renglones": [
+        {
+          "sku": "TUB-PVC-H075",
+          "cantidad": 5
+        },
+        {
+          "sku": "TUB-PVC-H100",
+          "cantidad": 15
+        },
+        {
+          "sku": "TUB-PVC-H200",
+          "cantidad": 50
+        },
+        {
+          "sku": "TUB-PVC-S100",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0108",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 6646580,
+          "iva_centavos": 1063453,
+          "total_centavos": 7710033
+        },
+        "recomendado": {
+          "subtotal_centavos": 7132945,
+          "iva_centavos": 1141271,
+          "total_centavos": 8274216
+        },
+        "premium": {
+          "subtotal_centavos": 8371988,
+          "iva_centavos": 1339518,
+          "total_centavos": 9711506
+        }
+      }
+    },
+    {
+      "id": "C11",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "100 tubos PVC sanitario 2 pulgadas, 100 botes de pegamento para PVC, 5 botes de limpiador primer PVC y 2 cintas de aislar 3M Scotch 1700. Flete a Mérida",
+      "renglones": [
+        {
+          "sku": "TUB-PVC-S050",
+          "cantidad": 100
+        },
+        {
+          "sku": "PEG-PVC-250",
+          "cantidad": 100
+        },
+        {
+          "sku": "LIM-PVC-250",
+          "cantidad": 5
+        },
+        {
+          "sku": "CINT-AIS-3M",
+          "cantidad": 2
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-MER",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0109",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 4318315,
+          "iva_centavos": 690930,
+          "total_centavos": 5009245
+        },
+        "recomendado": {
+          "subtotal_centavos": 4634266,
+          "iva_centavos": 741483,
+          "total_centavos": 5375749
+        },
+        "premium": {
+          "subtotal_centavos": 5640134,
+          "iva_centavos": 902421,
+          "total_centavos": 6542555
+        }
+      }
+    },
+    {
+      "id": "C12",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "10 cintas vulcanizables 3M 23, 10 varillas de tierra Copperweld 5/8, 5 conectores mecánicos para varilla 5/8 y 50 luminarias LED gabinete 2x18W. Con instalación de luminarias.",
+      "renglones": [
+        {
+          "sku": "CINT-VUL-3M",
+          "cantidad": 10
+        },
+        {
+          "sku": "VAR-COP-58",
+          "cantidad": 10
+        },
+        {
+          "sku": "CON-VAR-58",
+          "cantidad": 5
+        },
+        {
+          "sku": "LAM-LED-60",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-LUM",
+          "cantidad": 50
+        }
+      ],
+      "folio_parecido": "COT-MID-0110",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 4349440,
+          "iva_centavos": 695910,
+          "total_centavos": 5045350
+        },
+        "recomendado": {
+          "subtotal_centavos": 4667640,
+          "iva_centavos": 746822,
+          "total_centavos": 5414462
+        },
+        "premium": {
+          "subtotal_centavos": 5676673,
+          "iva_centavos": 908268,
+          "total_centavos": 6584941
+        }
+      }
+    },
+    {
+      "id": "C13",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "5 reflectores LED 50W intemperie, 15 apagadores sencillos Simon 25, 5 contactos dúplex aterrizados y 5 placas de 3 módulos con chasis",
+      "renglones": [
+        {
+          "sku": "LAM-REF-50",
+          "cantidad": 5
+        },
+        {
+          "sku": "AP-ESC-SN",
+          "cantidad": 15
+        },
+        {
+          "sku": "CON-DUP-SN",
+          "cantidad": 5
+        },
+        {
+          "sku": "PLA-3MOD-SN",
+          "cantidad": 5
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0111",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 285235,
+          "iva_centavos": 45638,
+          "total_centavos": 330873
+        },
+        "recomendado": {
+          "subtotal_centavos": 306100,
+          "iva_centavos": 48976,
+          "total_centavos": 355076
+        },
+        "premium": {
+          "subtotal_centavos": 907998,
+          "iva_centavos": 145280,
+          "total_centavos": 1053278
+        }
+      }
+    },
+    {
+      "id": "C14",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "50 bolsas de taquetes plásticos con pija 1/4 pulgada",
+      "renglones": [
+        {
+          "sku": "TAB-PST-05",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0112",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 369300,
+          "iva_centavos": 59088,
+          "total_centavos": 428388
+        },
+        "recomendado": {
+          "subtotal_centavos": 396350,
+          "iva_centavos": 63416,
+          "total_centavos": 459766
+        },
+        "premium": {
+          "subtotal_centavos": 1006683,
+          "iva_centavos": 161069,
+          "total_centavos": 1167752
+        }
+      }
+    },
+    {
+      "id": "C15",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "100 rollos de cable THW 12 rojo, 100 rollos de THW 10 blanco, 5 rollos de THW 8 verde y 100 tubos conduit 3/4 pared delgada. Instalación de la canalización, flete a Valladolid.",
+      "renglones": [
+        {
+          "sku": "CAB-THW-12R",
+          "cantidad": 100
+        },
+        {
+          "sku": "CAB-THW-10B",
+          "cantidad": 100
+        },
+        {
+          "sku": "CAB-THW-08V",
+          "cantidad": 5
+        },
+        {
+          "sku": "TUB-CND-075",
+          "cantidad": 100
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-CON",
+          "cantidad": 300
+        },
+        {
+          "codigo": "SRV-FLE-VAL",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0114",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 40590807,
+          "iva_centavos": 6494529,
+          "total_centavos": 47085336
+        },
+        "recomendado": {
+          "subtotal_centavos": 43560958,
+          "iva_centavos": 6969753,
+          "total_centavos": 50530711
+        },
+        "premium": {
+          "subtotal_centavos": 48200098,
+          "iva_centavos": 7712016,
+          "total_centavos": 55912114
+        }
+      }
+    },
+    {
+      "id": "C16",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "10 coples conduit 1 pulgada, 100 conectores conduit 3/4, 52 conectores conduit 1 pulgada, 20 abrazaderas de uña 1 pulgada y 10 centros de carga de 4 polos",
+      "renglones": [
+        {
+          "sku": "COP-CND-100",
+          "cantidad": 10
+        },
+        {
+          "sku": "CON-CND-075",
+          "cantidad": 100
+        },
+        {
+          "sku": "CON-CND-100",
+          "cantidad": 52
+        },
+        {
+          "sku": "ABR-UNA-100",
+          "cantidad": 20
+        },
+        {
+          "sku": "CC-4P-BIF",
+          "cantidad": 10
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0116",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 869532,
+          "iva_centavos": 139125,
+          "total_centavos": 1008657
+        },
+        "recomendado": {
+          "subtotal_centavos": 933152,
+          "iva_centavos": 149304,
+          "total_centavos": 1082456
+        },
+        "premium": {
+          "subtotal_centavos": 1593633,
+          "iva_centavos": 254981,
+          "total_centavos": 1848614
+        }
+      }
+    },
+    {
+      "id": "C17",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "2 centros de carga 8 polos trifásico, 15 centros de carga 12 polos trifásico, 15 interruptores 1P 20A y 50 interruptores 1P 30A, con instalación",
+      "renglones": [
+        {
+          "sku": "CC-8P-TRI",
+          "cantidad": 2
+        },
+        {
+          "sku": "CC-12P-TRI",
+          "cantidad": 15
+        },
+        {
+          "sku": "INT-TM-120",
+          "cantidad": 15
+        },
+        {
+          "sku": "INT-TM-130",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-TAB",
+          "cantidad": 17
+        },
+        {
+          "codigo": "SRV-INS-INT",
+          "cantidad": 65
+        }
+      ],
+      "folio_parecido": "COT-MID-0117",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 6455100,
+          "iva_centavos": 1032816,
+          "total_centavos": 7487916
+        },
+        "recomendado": {
+          "subtotal_centavos": 6927420,
+          "iva_centavos": 1108387,
+          "total_centavos": 8035807
+        },
+        "premium": {
+          "subtotal_centavos": 8147296,
+          "iva_centavos": 1303567,
+          "total_centavos": 9450863
+        }
+      }
+    },
+    {
+      "id": "C18",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "50 interruptores termomagnéticos 2P 30A, 20 de 2P 50A, 5 de 3P 60A y 2 cajas FS 3/4. Entrega en Tizimín.",
+      "renglones": [
+        {
+          "sku": "INT-TM-230",
+          "cantidad": 50
+        },
+        {
+          "sku": "INT-TM-250",
+          "cantidad": 20
+        },
+        {
+          "sku": "INT-TM-360",
+          "cantidad": 5
+        },
+        {
+          "sku": "CAJ-FS-075",
+          "cantidad": 2
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-TIZ",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0118",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 4701153,
+          "iva_centavos": 752184,
+          "total_centavos": 5453337
+        },
+        "recomendado": {
+          "subtotal_centavos": 5045151,
+          "iva_centavos": 807224,
+          "total_centavos": 5852375
+        },
+        "premium": {
+          "subtotal_centavos": 6089311,
+          "iva_centavos": 974290,
+          "total_centavos": 7063601
+        }
+      }
+    },
+    {
+      "id": "C19",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "50 cajas de registro FD 3/4, 100 cajas chalupa 4x4, 20 tapas ciegas 4x4 y 5 tubos PVC hidráulico 1/2 pulgada",
+      "renglones": [
+        {
+          "sku": "CAJ-FD-075",
+          "cantidad": 50
+        },
+        {
+          "sku": "CAJ-CH-4X4",
+          "cantidad": 100
+        },
+        {
+          "sku": "TAP-CH-4X4",
+          "cantidad": 20
+        },
+        {
+          "sku": "TUB-PVC-H050",
+          "cantidad": 5
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0119",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1126750,
+          "iva_centavos": 180280,
+          "total_centavos": 1307030
+        },
+        "recomendado": {
+          "subtotal_centavos": 1209180,
+          "iva_centavos": 193469,
+          "total_centavos": 1402649
+        },
+        "premium": {
+          "subtotal_centavos": 1895308,
+          "iva_centavos": 303249,
+          "total_centavos": 2198557
+        }
+      }
+    },
+    {
+      "id": "C20",
+      "autor": "Jorge",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "10 tubos PVC hidráulico de 3/4, 20 de 1 pulgada, 20 de 2 pulgadas y 15 tubos PVC sanitario de 4 pulgadas. Flete a Izamal",
+      "renglones": [
+        {
+          "sku": "TUB-PVC-H075",
+          "cantidad": 10
+        },
+        {
+          "sku": "TUB-PVC-H100",
+          "cantidad": 20
+        },
+        {
+          "sku": "TUB-PVC-H200",
+          "cantidad": 20
+        },
+        {
+          "sku": "TUB-PVC-S100",
+          "cantidad": 15
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-IZA",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0120",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 3131240,
+          "iva_centavos": 500998,
+          "total_centavos": 3632238
+        },
+        "recomendado": {
+          "subtotal_centavos": 3360370,
+          "iva_centavos": 537659,
+          "total_centavos": 3898029
+        },
+        "premium": {
+          "subtotal_centavos": 4247333,
+          "iva_centavos": 679573,
+          "total_centavos": 4926906
+        }
+      }
+    },
+    {
+      "id": "C21",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Hola, necesito cotizar para Constructora Maya Colonial: 5 tubos PVC hidráulico 3/4, 15 tubos PVC hidráulico 1 pulg y 15 tubos PVC sanitario 4 pulg. Entrega en Mérida, por favor.",
+      "renglones": [
+        {
+          "sku": "TUB-PVC-H075",
+          "cantidad": 5
+        },
+        {
+          "sku": "TUB-PVC-H100",
+          "cantidad": 15
+        },
+        {
+          "sku": "TUB-PVC-S100",
+          "cantidad": 15
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-MER",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0108",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1456244,
+          "iva_centavos": 232999,
+          "total_centavos": 1689243
+        },
+        "recomendado": {
+          "subtotal_centavos": 1562803,
+          "iva_centavos": 250048,
+          "total_centavos": 1812851
+        },
+        "premium": {
+          "subtotal_centavos": 2282005,
+          "iva_centavos": 365121,
+          "total_centavos": 2647126
+        }
+      }
+    },
+    {
+      "id": "C22",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "2 tubos PVC sanitario 2 pulgadas, 20 botes de pegamento PVC, 10 botes limpiador PVC, 5 cintas de aislar 3M. Flete a Mérida.",
+      "renglones": [
+        {
+          "sku": "TUB-PVC-S050",
+          "cantidad": 2
+        },
+        {
+          "sku": "PEG-PVC-250",
+          "cantidad": 20
+        },
+        {
+          "sku": "LIM-PVC-250",
+          "cantidad": 10
+        },
+        {
+          "sku": "CINT-AIS-3M",
+          "cantidad": 5
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-MER",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0121",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 446600,
+          "iva_centavos": 71456,
+          "total_centavos": 518056
+        },
+        "recomendado": {
+          "subtotal_centavos": 479270,
+          "iva_centavos": 76683,
+          "total_centavos": 555953
+        },
+        "premium": {
+          "subtotal_centavos": 1097341,
+          "iva_centavos": 175575,
+          "total_centavos": 1272916
+        }
+      }
+    },
+    {
+      "id": "C23",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "20 cintas vulcanizables, 2 varillas Copperweld 5/8, 15 conectores para varilla y 2 luminarias LED de 2x18W",
+      "renglones": [
+        {
+          "sku": "CINT-VUL-3M",
+          "cantidad": 20
+        },
+        {
+          "sku": "VAR-COP-58",
+          "cantidad": 2
+        },
+        {
+          "sku": "CON-VAR-58",
+          "cantidad": 15
+        },
+        {
+          "sku": "LAM-LED-60",
+          "cantidad": 2
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0122",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 647170,
+          "iva_centavos": 103547,
+          "total_centavos": 750717
+        },
+        "recomendado": {
+          "subtotal_centavos": 694514,
+          "iva_centavos": 111122,
+          "total_centavos": 805636
+        },
+        "premium": {
+          "subtotal_centavos": 1332673,
+          "iva_centavos": 213228,
+          "total_centavos": 1545901
+        }
+      }
+    },
+    {
+      "id": "C24",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "5 reflectores LED 50W, 20 apagadores sencillos, 10 contactos dúplex y 100 placas con chasis de 3 módulos Simon",
+      "renglones": [
+        {
+          "sku": "LAM-REF-50",
+          "cantidad": 5
+        },
+        {
+          "sku": "AP-ESC-SN",
+          "cantidad": 20
+        },
+        {
+          "sku": "CON-DUP-SN",
+          "cantidad": 10
+        },
+        {
+          "sku": "PLA-3MOD-SN",
+          "cantidad": 100
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0123",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 644345,
+          "iva_centavos": 103095,
+          "total_centavos": 747440
+        },
+        "recomendado": {
+          "subtotal_centavos": 691500,
+          "iva_centavos": 110640,
+          "total_centavos": 802140
+        },
+        "premium": {
+          "subtotal_centavos": 1329298,
+          "iva_centavos": 212688,
+          "total_centavos": 1541986
+        }
+      }
+    },
+    {
+      "id": "C25",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "10 gabinetes sobreponer NEMA 1, 50 gabinetes NEMA 4X, 10 gabinetes autosoportados NEMA 12 y 20 rollos de cable THW calibre 12 negro. Instalación de gabinetes y flete a Motul.",
+      "renglones": [
+        {
+          "sku": "GAB-303015",
+          "cantidad": 10
+        },
+        {
+          "sku": "GAB-403020",
+          "cantidad": 50
+        },
+        {
+          "sku": "GAB-504020",
+          "cantidad": 10
+        },
+        {
+          "sku": "CAB-THW-12N",
+          "cantidad": 20
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-GAB",
+          "cantidad": 70
+        },
+        {
+          "codigo": "SRV-FLE-MOT",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0125",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 19903369,
+          "iva_centavos": 3184539,
+          "total_centavos": 23087908
+        },
+        "recomendado": {
+          "subtotal_centavos": 21359814,
+          "iva_centavos": 3417570,
+          "total_centavos": 24777384
+        },
+        "premium": {
+          "subtotal_centavos": 23926673,
+          "iva_centavos": 3828268,
+          "total_centavos": 27754941
+        }
+      }
+    },
+    {
+      "id": "C26",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "5 tubos conduit pared delgada 1 pulg, 5 tubos conduit pared gruesa 3/4, 2 tubos conduit pared gruesa 1 pulg y 50 coples de 3/4. Con instalación y flete a Progreso.",
+      "renglones": [
+        {
+          "sku": "TUB-CND-100",
+          "cantidad": 5
+        },
+        {
+          "sku": "TUB-CND-G075",
+          "cantidad": 5
+        },
+        {
+          "sku": "TUB-CND-G100",
+          "cantidad": 2
+        },
+        {
+          "sku": "COP-CND-075",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-CON",
+          "cantidad": 36
+        },
+        {
+          "codigo": "SRV-FLE-PRO",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0127",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 756561,
+          "iva_centavos": 121050,
+          "total_centavos": 877611
+        },
+        "recomendado": {
+          "subtotal_centavos": 811929,
+          "iva_centavos": 129909,
+          "total_centavos": 941838
+        },
+        "premium": {
+          "subtotal_centavos": 1461094,
+          "iva_centavos": 233775,
+          "total_centavos": 1694869
+        }
+      }
+    },
+    {
+      "id": "C27",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "5 coples conduit 1 pulgada, 2 conectores 3/4 y 10 conectores de 1 pulgada",
+      "renglones": [
+        {
+          "sku": "COP-CND-100",
+          "cantidad": 5
+        },
+        {
+          "sku": "CON-CND-075",
+          "cantidad": 2
+        },
+        {
+          "sku": "CON-CND-100",
+          "cantidad": 10
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0128",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 37267,
+          "iva_centavos": 5963,
+          "total_centavos": 43230
+        },
+        "recomendado": {
+          "subtotal_centavos": 39999,
+          "iva_centavos": 6400,
+          "total_centavos": 46399
+        },
+        "premium": {
+          "subtotal_centavos": 617067,
+          "iva_centavos": 98731,
+          "total_centavos": 715798
+        }
+      }
+    },
+    {
+      "id": "C28",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "15 tubos conduit galvanizado 1 pulg pared delgada, 2 de pared gruesa 3/4, 15 de pared gruesa de 1 pulg y 15 coples conduit 3/4",
+      "renglones": [
+        {
+          "sku": "TUB-CND-100",
+          "cantidad": 15
+        },
+        {
+          "sku": "TUB-CND-G075",
+          "cantidad": 2
+        },
+        {
+          "sku": "TUB-CND-G100",
+          "cantidad": 15
+        },
+        {
+          "sku": "COP-CND-075",
+          "cantidad": 15
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0115",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1216754,
+          "iva_centavos": 194681,
+          "total_centavos": 1411435
+        },
+        "recomendado": {
+          "subtotal_centavos": 1305790,
+          "iva_centavos": 208926,
+          "total_centavos": 1514716
+        },
+        "premium": {
+          "subtotal_centavos": 2001004,
+          "iva_centavos": 320161,
+          "total_centavos": 2321165
+        }
+      }
+    },
+    {
+      "id": "C29",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "15 bolsas de taquetes plásticos 1/4. Flete a Kanasín",
+      "renglones": [
+        {
+          "sku": "TAB-PST-05",
+          "cantidad": 15
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-KAN",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0124",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 199426,
+          "iva_centavos": 31908,
+          "total_centavos": 231334
+        },
+        "recomendado": {
+          "subtotal_centavos": 214027,
+          "iva_centavos": 34244,
+          "total_centavos": 248271
+        },
+        "premium": {
+          "subtotal_centavos": 807338,
+          "iva_centavos": 129174,
+          "total_centavos": 936512
+        }
+      }
+    },
+    {
+      "id": "C30",
+      "autor": "Erick",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "2 rollos de cable THW 12 rojo, 5 de THW 10 blanco, 10 rollos de THW 8 verde, 20 tramos de tubo conduit 3/4 pared delgada",
+      "renglones": [
+        {
+          "sku": "CAB-THW-12R",
+          "cantidad": 2
+        },
+        {
+          "sku": "CAB-THW-10B",
+          "cantidad": 5
+        },
+        {
+          "sku": "CAB-THW-08V",
+          "cantidad": 10
+        },
+        {
+          "sku": "TUB-CND-075",
+          "cantidad": 20
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0126",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 5073855,
+          "iva_centavos": 811817,
+          "total_centavos": 5885672
+        },
+        "recomendado": {
+          "subtotal_centavos": 5445128,
+          "iva_centavos": 871220,
+          "total_centavos": 6316348
+        },
+        "premium": {
+          "subtotal_centavos": 6526657,
+          "iva_centavos": 1044265,
+          "total_centavos": 7570922
+        }
+      }
+    },
+    {
+      "id": "C31",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Para Desarrollos Residenciales Altabrisa: 10 gabinetes NEMA 1 30x30x15, 2 gabinetes NEMA 4X, 2 gabinetes NEMA 12 autosoportados y 100 rollos de cable calibre 12 negro. Instalación de gabinetes y flete a Mérida.",
+      "renglones": [
+        {
+          "sku": "GAB-303015",
+          "cantidad": 10
+        },
+        {
+          "sku": "GAB-403020",
+          "cantidad": 2
+        },
+        {
+          "sku": "GAB-504020",
+          "cantidad": 2
+        },
+        {
+          "sku": "CAB-THW-12N",
+          "cantidad": 100
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-GAB",
+          "cantidad": 14
+        },
+        {
+          "codigo": "SRV-FLE-MER",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0101",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 16932904,
+          "iva_centavos": 2709265,
+          "total_centavos": 19642169
+        },
+        "recomendado": {
+          "subtotal_centavos": 18171960,
+          "iva_centavos": 2907514,
+          "total_centavos": 21079474
+        },
+        "premium": {
+          "subtotal_centavos": 20441364,
+          "iva_centavos": 3270618,
+          "total_centavos": 23711982
+        }
+      }
+    },
+    {
+      "id": "C32",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "25 rollos cable THW 12 rojo, 100 rollos cable THW 10 blanco, 40 rollos THW 8 verde, 30 tubos conduit galvanizado pared delgada 3/4",
+      "renglones": [
+        {
+          "sku": "CAB-THW-12R",
+          "cantidad": 25
+        },
+        {
+          "sku": "CAB-THW-10B",
+          "cantidad": 100
+        },
+        {
+          "sku": "CAB-THW-08V",
+          "cantidad": 40
+        },
+        {
+          "sku": "TUB-CND-075",
+          "cantidad": 30
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0102",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 39068175,
+          "iva_centavos": 6250908,
+          "total_centavos": 45319083
+        },
+        "recomendado": {
+          "subtotal_centavos": 41926865,
+          "iva_centavos": 6708298,
+          "total_centavos": 48635163
+        },
+        "premium": {
+          "subtotal_centavos": 46413318,
+          "iva_centavos": 7426131,
+          "total_centavos": 53839449
+        }
+      }
+    },
+    {
+      "id": "C33",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "15 tubos conduit galvanizado pared delgada 1 pulg, 20 tubos conduit pared gruesa 3/4, 100 tubos conduit pared gruesa 1 pulg y 20 coples conduit pared delgada 3/4 con tornillo, con instalación",
+      "renglones": [
+        {
+          "sku": "TUB-CND-100",
+          "cantidad": 15
+        },
+        {
+          "sku": "TUB-CND-G075",
+          "cantidad": 20
+        },
+        {
+          "sku": "TUB-CND-G100",
+          "cantidad": 100
+        },
+        {
+          "sku": "COP-CND-075",
+          "cantidad": 20
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-CON",
+          "cantidad": 405
+        }
+      ],
+      "folio_parecido": "COT-MID-0103",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 7905010,
+          "iva_centavos": 1264802,
+          "total_centavos": 9169812
+        },
+        "recomendado": {
+          "subtotal_centavos": 8483450,
+          "iva_centavos": 1357352,
+          "total_centavos": 9840802
+        },
+        "premium": {
+          "subtotal_centavos": 9848773,
+          "iva_centavos": 1575804,
+          "total_centavos": 11424577
+        }
+      }
+    },
+    {
+      "id": "C34",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "2 centros de carga 4 polos bifásico, 100 de 8 polos trifásico, 15 de 12 polos trifásico y 100 abrazaderas uña 1 pulg galvanizadas. Instalación de tableros y flete a Umán.",
+      "renglones": [
+        {
+          "sku": "CC-4P-BIF",
+          "cantidad": 2
+        },
+        {
+          "sku": "CC-8P-TRI",
+          "cantidad": 100
+        },
+        {
+          "sku": "CC-12P-TRI",
+          "cantidad": 15
+        },
+        {
+          "sku": "ABR-UNA-100",
+          "cantidad": 100
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-TAB",
+          "cantidad": 117
+        },
+        {
+          "codigo": "SRV-FLE-UMA",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0105",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 21361395,
+          "iva_centavos": 3417823,
+          "total_centavos": 24779218
+        },
+        "recomendado": {
+          "subtotal_centavos": 22924440,
+          "iva_centavos": 3667910,
+          "total_centavos": 26592350
+        },
+        "premium": {
+          "subtotal_centavos": 25637405,
+          "iva_centavos": 4101985,
+          "total_centavos": 29739390
+        }
+      }
+    },
+    {
+      "id": "C35",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "15 pastillas termomagnéticas 1P 20A, 100 pastillas 1P 30A, 10 pastillas 2P 30A, 50 pastillas 3P 60A y 50 cajas registro FS 3/4. Instalación de las pastillas.",
+      "renglones": [
+        {
+          "sku": "INT-TM-120",
+          "cantidad": 15
+        },
+        {
+          "sku": "INT-TM-130",
+          "cantidad": 100
+        },
+        {
+          "sku": "INT-TM-230",
+          "cantidad": 10
+        },
+        {
+          "sku": "INT-TM-360",
+          "cantidad": 50
+        },
+        {
+          "sku": "CAJ-FS-075",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-INT",
+          "cantidad": 175
+        }
+      ],
+      "folio_parecido": "COT-MID-0106",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 12639195,
+          "iva_centavos": 2022271,
+          "total_centavos": 14661466
+        },
+        "recomendado": {
+          "subtotal_centavos": 13564020,
+          "iva_centavos": 2170243,
+          "total_centavos": 15734263
+        },
+        "premium": {
+          "subtotal_centavos": 15403233,
+          "iva_centavos": 2464517,
+          "total_centavos": 17867750
+        }
+      }
+    },
+    {
+      "id": "C36",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Necesito 50 cajas FD de 3/4, 20 cajas chalupa 4x4, 5 tapas ciegas cuadradas y 50 tubos PVC hidráulico 1/2. Flete a Mérida",
+      "renglones": [
+        {
+          "sku": "CAJ-FD-075",
+          "cantidad": 50
+        },
+        {
+          "sku": "CAJ-CH-4X4",
+          "cantidad": 20
+        },
+        {
+          "sku": "TAP-CH-4X4",
+          "cantidad": 5
+        },
+        {
+          "sku": "TUB-PVC-H050",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-MER",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0107",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1509394,
+          "iva_centavos": 241503,
+          "total_centavos": 1750897
+        },
+        "recomendado": {
+          "subtotal_centavos": 1619808,
+          "iva_centavos": 259169,
+          "total_centavos": 1878977
+        },
+        "premium": {
+          "subtotal_centavos": 2344325,
+          "iva_centavos": 375092,
+          "total_centavos": 2719417
+        }
+      }
+    },
+    {
+      "id": "C37",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Cotízame 100 tubos PVC sanitario 2 pulgadas, 100 botes de pegamento PVC azul, 5 de limpiador y 2 cintas de aislar vinílicas",
+      "renglones": [
+        {
+          "sku": "TUB-PVC-S050",
+          "cantidad": 100
+        },
+        {
+          "sku": "PEG-PVC-250",
+          "cantidad": 100
+        },
+        {
+          "sku": "LIM-PVC-250",
+          "cantidad": 5
+        },
+        {
+          "sku": "CINT-AIS-3M",
+          "cantidad": 2
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0109",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 4244451,
+          "iva_centavos": 679112,
+          "total_centavos": 4923563
+        },
+        "recomendado": {
+          "subtotal_centavos": 4554998,
+          "iva_centavos": 728800,
+          "total_centavos": 5283798
+        },
+        "premium": {
+          "subtotal_centavos": 5553467,
+          "iva_centavos": 888555,
+          "total_centavos": 6442022
+        }
+      }
+    },
+    {
+      "id": "C38",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "10 cintas vulcanizables, 10 varillas Copperweld de tierra, 5 conectores para varilla de tierra y 50 luminarias LED de gabinete. Instalación de las luminarias.",
+      "renglones": [
+        {
+          "sku": "CINT-VUL-3M",
+          "cantidad": 10
+        },
+        {
+          "sku": "VAR-COP-58",
+          "cantidad": 10
+        },
+        {
+          "sku": "CON-VAR-58",
+          "cantidad": 5
+        },
+        {
+          "sku": "LAM-LED-60",
+          "cantidad": 50
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-LUM",
+          "cantidad": 50
+        }
+      ],
+      "folio_parecido": "COT-MID-0110",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 4349440,
+          "iva_centavos": 695910,
+          "total_centavos": 5045350
+        },
+        "recomendado": {
+          "subtotal_centavos": 4667640,
+          "iva_centavos": 746822,
+          "total_centavos": 5414462
+        },
+        "premium": {
+          "subtotal_centavos": 5676673,
+          "iva_centavos": 908268,
+          "total_centavos": 6584941
+        }
+      }
+    },
+    {
+      "id": "C39",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "2 tubos PVC sanitario 2 pulgadas, 100 botes de pegamento para PVC, 10 botes limpiador primer y 2 cintas de aislar 3M. Entrega en Kanasín",
+      "renglones": [
+        {
+          "sku": "TUB-PVC-S050",
+          "cantidad": 2
+        },
+        {
+          "sku": "PEG-PVC-250",
+          "cantidad": 100
+        },
+        {
+          "sku": "LIM-PVC-250",
+          "cantidad": 10
+        },
+        {
+          "sku": "CINT-AIS-3M",
+          "cantidad": 2
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-KAN",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0121",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1257538,
+          "iva_centavos": 201206,
+          "total_centavos": 1458744
+        },
+        "recomendado": {
+          "subtotal_centavos": 1349542,
+          "iva_centavos": 215927,
+          "total_centavos": 1565469
+        },
+        "premium": {
+          "subtotal_centavos": 2048833,
+          "iva_centavos": 327813,
+          "total_centavos": 2376646
+        }
+      }
+    },
+    {
+      "id": "C40",
+      "autor": "Anyeli",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "20 gabinetes NEMA 1 30x30x15, 10 gabinetes NEMA 4X, 5 gabinetes autosoportados NEMA 12 y 15 rollos de cable THW calibre 12 negro. Con instalación y flete a Mérida.",
+      "renglones": [
+        {
+          "sku": "GAB-303015",
+          "cantidad": 20
+        },
+        {
+          "sku": "GAB-403020",
+          "cantidad": 10
+        },
+        {
+          "sku": "GAB-504020",
+          "cantidad": 5
+        },
+        {
+          "sku": "CAB-THW-12N",
+          "cantidad": 15
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-GAB",
+          "cantidad": 35
+        },
+        {
+          "codigo": "SRV-FLE-MER",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0113",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 9295434,
+          "iva_centavos": 1487269,
+          "total_centavos": 10782703
+        },
+        "recomendado": {
+          "subtotal_centavos": 9975638,
+          "iva_centavos": 1596102,
+          "total_centavos": 11571740
+        },
+        "premium": {
+          "subtotal_centavos": 11480000,
+          "iva_centavos": 1836800,
+          "total_centavos": 13316800
+        }
+      }
+    },
+    {
+      "id": "C41",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Ocupo una docena de interruptores termomagnéticos 1P 20A y media docena de centros de carga de 4 polos. Instalación incluida.",
+      "renglones": [
+        {
+          "sku": "INT-TM-120",
+          "cantidad": 12
+        },
+        {
+          "sku": "CC-4P-BIF",
+          "cantidad": 6
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-INT",
+          "cantidad": 12
+        },
+        {
+          "codigo": "SRV-INS-TAB",
+          "cantidad": 6
+        }
+      ],
+      "folio_parecido": "COT-MID-0117",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1268178,
+          "iva_centavos": 202908,
+          "total_centavos": 1471086
+        },
+        "recomendado": {
+          "subtotal_centavos": 1360974,
+          "iva_centavos": 217756,
+          "total_centavos": 1578730
+        },
+        "premium": {
+          "subtotal_centavos": 2061327,
+          "iva_centavos": 329812,
+          "total_centavos": 2391139
+        }
+      }
+    },
+    {
+      "id": "C42",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Dos docenas de apagadores sencillos Simon, 10 contactos dúplex y 1 placa de 3 módulos",
+      "renglones": [
+        {
+          "sku": "AP-ESC-SN",
+          "cantidad": 24
+        },
+        {
+          "sku": "CON-DUP-SN",
+          "cantidad": 10
+        },
+        {
+          "sku": "PLA-3MOD-SN",
+          "cantidad": 1
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0111",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 183644,
+          "iva_centavos": 29383,
+          "total_centavos": 213027
+        },
+        "recomendado": {
+          "subtotal_centavos": 197073,
+          "iva_centavos": 31532,
+          "total_centavos": 228605
+        },
+        "premium": {
+          "subtotal_centavos": 788796,
+          "iva_centavos": 126207,
+          "total_centavos": 915003
+        }
+      }
+    },
+    {
+      "id": "C43",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "3 rollos de cable calibre 12 AWG rojo y 4 rollos de cable calibre 8 AWG verde, entrega en Motul",
+      "renglones": [
+        {
+          "sku": "CAB-THW-12R",
+          "cantidad": 3
+        },
+        {
+          "sku": "CAB-THW-08V",
+          "cantidad": 4
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-MOT",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0102",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1934088,
+          "iva_centavos": 309454,
+          "total_centavos": 2243542
+        },
+        "recomendado": {
+          "subtotal_centavos": 2075611,
+          "iva_centavos": 332098,
+          "total_centavos": 2407709
+        },
+        "premium": {
+          "subtotal_centavos": 2842666,
+          "iva_centavos": 454827,
+          "total_centavos": 3297493
+        }
+      }
+    },
+    {
+      "id": "C44",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "5 reflectores LED de 50 W, 10 luminarias LED 2x18 W y 5 cajas cuadradas chalupa 4x4. Con instalación de luminarias y flete a Izamal.",
+      "renglones": [
+        {
+          "sku": "LAM-REF-50",
+          "cantidad": 5
+        },
+        {
+          "sku": "LAM-LED-60",
+          "cantidad": 10
+        },
+        {
+          "sku": "CAJ-CH-4X4",
+          "cantidad": 5
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-LUM",
+          "cantidad": 15
+        },
+        {
+          "codigo": "SRV-FLE-IZA",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0110",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1300005,
+          "iva_centavos": 208001,
+          "total_centavos": 1508006
+        },
+        "recomendado": {
+          "subtotal_centavos": 1395115,
+          "iva_centavos": 223218,
+          "total_centavos": 1618333
+        },
+        "premium": {
+          "subtotal_centavos": 2098668,
+          "iva_centavos": 335787,
+          "total_centavos": 2434455
+        }
+      }
+    },
+    {
+      "id": "C45",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Pedido urgente: 50 cajas registro FS 3/4, 50 cajas FD 3/4 y 20 cajas chalupa. Enviar a Progreso.",
+      "renglones": [
+        {
+          "sku": "CAJ-FS-075",
+          "cantidad": 50
+        },
+        {
+          "sku": "CAJ-FD-075",
+          "cantidad": 50
+        },
+        {
+          "sku": "CAJ-CH-4X4",
+          "cantidad": 20
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-PRO",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0119",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1387522,
+          "iva_centavos": 222004,
+          "total_centavos": 1609526
+        },
+        "recomendado": {
+          "subtotal_centavos": 1489044,
+          "iva_centavos": 238247,
+          "total_centavos": 1727291
+        },
+        "premium": {
+          "subtotal_centavos": 2201326,
+          "iva_centavos": 352212,
+          "total_centavos": 2553538
+        }
+      }
+    },
+    {
+      "id": "C46",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Necesito 6 varillas Copperweld 5/8 y 6 conectores de bronce para varilla. Flete a Tizimín",
+      "renglones": [
+        {
+          "sku": "VAR-COP-58",
+          "cantidad": 6
+        },
+        {
+          "sku": "CON-VAR-58",
+          "cantidad": 6
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-FLE-TIZ",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0122",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 578413,
+          "iva_centavos": 92546,
+          "total_centavos": 670959
+        },
+        "recomendado": {
+          "subtotal_centavos": 620731,
+          "iva_centavos": 99317,
+          "total_centavos": 720048
+        },
+        "premium": {
+          "subtotal_centavos": 1252002,
+          "iva_centavos": 200320,
+          "total_centavos": 1452322
+        }
+      }
+    },
+    {
+      "id": "C47",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Lista: 100 botes de pegamento PVC, 100 botes de limpiador primer PVC, 20 cintas de aislar y 30 cintas vulcanizables",
+      "renglones": [
+        {
+          "sku": "PEG-PVC-250",
+          "cantidad": 100
+        },
+        {
+          "sku": "LIM-PVC-250",
+          "cantidad": 100
+        },
+        {
+          "sku": "CINT-AIS-3M",
+          "cantidad": 20
+        },
+        {
+          "sku": "CINT-VUL-3M",
+          "cantidad": 30
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0121",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 2580750,
+          "iva_centavos": 412920,
+          "total_centavos": 2993670
+        },
+        "recomendado": {
+          "subtotal_centavos": 2769510,
+          "iva_centavos": 443122,
+          "total_centavos": 3212632
+        },
+        "premium": {
+          "subtotal_centavos": 3601383,
+          "iva_centavos": 576221,
+          "total_centavos": 4177604
+        }
+      }
+    },
+    {
+      "id": "C48",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "2 gabinetes autosoportados NEMA 12 y 3 gabinetes NEMA 4X intemperie, con instalación. Entrega en Umán",
+      "renglones": [
+        {
+          "sku": "GAB-504020",
+          "cantidad": 2
+        },
+        {
+          "sku": "GAB-403020",
+          "cantidad": 3
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-GAB",
+          "cantidad": 5
+        },
+        {
+          "codigo": "SRV-FLE-UMA",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0101",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 1478407,
+          "iva_centavos": 236545,
+          "total_centavos": 1714952
+        },
+        "recomendado": {
+          "subtotal_centavos": 1586589,
+          "iva_centavos": 253854,
+          "total_centavos": 1840443
+        },
+        "premium": {
+          "subtotal_centavos": 2308000,
+          "iva_centavos": 369280,
+          "total_centavos": 2677280
+        }
+      }
+    },
+    {
+      "id": "C49",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "cotiza 40 tubos PVC hidráulico de 2 pulgadas, 10 de 3/4 pulgada, 30 de 1/2 pulgada y 5 tubos PVC sanitario 4 pulgadas",
+      "renglones": [
+        {
+          "sku": "TUB-PVC-H200",
+          "cantidad": 40
+        },
+        {
+          "sku": "TUB-PVC-H075",
+          "cantidad": 10
+        },
+        {
+          "sku": "TUB-PVC-H050",
+          "cantidad": 30
+        },
+        {
+          "sku": "TUB-PVC-S100",
+          "cantidad": 5
+        }
+      ],
+      "servicios": [],
+      "folio_parecido": "COT-MID-0120",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 3500560,
+          "iva_centavos": 560090,
+          "total_centavos": 4060650
+        },
+        "recomendado": {
+          "subtotal_centavos": 3756710,
+          "iva_centavos": 601074,
+          "total_centavos": 4357784
+        },
+        "premium": {
+          "subtotal_centavos": 4680643,
+          "iva_centavos": 748903,
+          "total_centavos": 5429546
+        }
+      }
+    },
+    {
+      "id": "C50",
+      "autor": "Jhoana",
+      "estado_revision": "borrador de Claude: pendiente de revisión por el equipo",
+      "solicitud": "Material para obra en Mérida: 20 gabinetes NEMA 4X, 15 rollos de cable calibre 12 negro y 5 interruptores 2P 50A, con instalación",
+      "renglones": [
+        {
+          "sku": "GAB-403020",
+          "cantidad": 20
+        },
+        {
+          "sku": "CAB-THW-12N",
+          "cantidad": 15
+        },
+        {
+          "sku": "INT-TM-250",
+          "cantidad": 5
+        }
+      ],
+      "servicios": [
+        {
+          "codigo": "SRV-INS-GAB",
+          "cantidad": 20
+        },
+        {
+          "codigo": "SRV-INS-INT",
+          "cantidad": 5
+        },
+        {
+          "codigo": "SRV-FLE-MER",
+          "cantidad": 1
+        }
+      ],
+      "folio_parecido": "COT-MID-0113",
+      "esperado": {
+        "economico": {
+          "subtotal_centavos": 7448849,
+          "iva_centavos": 1191816,
+          "total_centavos": 8640665
+        },
+        "recomendado": {
+          "subtotal_centavos": 7993923,
+          "iva_centavos": 1279028,
+          "total_centavos": 9272951
+        },
+        "premium": {
+          "subtotal_centavos": 9313335,
+          "iva_centavos": 1490134,
+          "total_centavos": 10803469
+        }
+      }
+    }
+  ]
+}

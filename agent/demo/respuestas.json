@@ -1,0 +1,17 @@
+{
+  "_comentario": "Respuestas precargadas para MODO_DEMO=true (el paso del LLM). Sin cifras: los números salen siempre de las herramientas. Datos y textos sintéticos.",
+  "escenarios": {
+    "economico": {
+      "notas": "Escenario con el margen más bajo, pensado para competir por precio. Revisa que el cliente acepte las condiciones de entrega estándar.",
+      "riesgos": ["Margen reducido: cualquier ajuste de costo puede dejarlo sin utilidad."]
+    },
+    "recomendado": {
+      "notas": "Equilibrio entre precio y margen; es la opción sugerida cuando no hay indicaciones especiales del cliente.",
+      "riesgos": ["Confirma vigencia de precios antes de enviar."]
+    },
+    "premium": {
+      "notas": "Incluye los servicios opcionales del tarifario (supervisión en obra y garantía extendida) con el margen más alto.",
+      "riesgos": ["El cliente podría comparar contra una oferta sin servicios opcionales."]
+    }
+  }
+}
