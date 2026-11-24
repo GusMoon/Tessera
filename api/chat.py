@@ -19,7 +19,7 @@ from typing import Optional
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from agent.llm import (
@@ -34,8 +34,10 @@ from agent.llm import (
     ProveedorLLM,
     crear_proveedor,
 )
+from agent.contexto import describir_fuentes
 from agent.llm.adjuntos import MAX_BYTES_ARCHIVO, Adjunto, ErrorAdjunto, construir_contenido, leer_adjunto_bytes
 from agent.llm.uso import LIMITE_POR_MINUTO, CuotaOpenRouter, VentanaMinuto, proximo_reinicio_diario
+from db.database import get_connection
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
@@ -213,6 +215,19 @@ def _leer_archivos(archivos: list[UploadFile]) -> list[Adjunto]:
     return adjuntos
 
 
+def _prompt_con_fuentes(usuario_id: Optional[str]) -> str:
+    """El prompt de sistema más lo que hay cargado para este usuario; sin usuario, el prompt de siempre."""
+    if not usuario_id:
+        return PROMPT_SISTEMA_COTIZACIONES
+    conn = get_connection()
+    try:
+        if conn.execute("SELECT 1 FROM usuarios WHERE id = ?", (usuario_id,)).fetchone() is None:
+            return PROMPT_SISTEMA_COTIZACIONES
+        return f"{PROMPT_SISTEMA_COTIZACIONES}\n{describir_fuentes(conn, usuario_id)}"
+    finally:
+        conn.close()
+
+
 # --------------------------------------------------------------------------- rutas
 @router.get("/config", response_model=ConfigChat)
 def configuracion_chat():
@@ -305,6 +320,7 @@ def chatear(
     mensaje: str = Form(...),
     historial: str = Form("[]"),
     archivos: Optional[list[UploadFile]] = File(None),
+    x_usuario_id: Optional[str] = Header(None),
 ):
     texto = mensaje.strip()
     if not texto:
@@ -316,7 +332,7 @@ def chatear(
     try:
         proveedor = _obtener_proveedor(vision=any(a.tipo == "imagen" for a in adjuntos))
         _minuto.registrar()
-        r = proveedor.completar(mensajes, sistema=PROMPT_SISTEMA_COTIZACIONES, max_tokens=_max_tokens_salida(proveedor.nombre))
+        r = proveedor.completar(mensajes, sistema=_prompt_con_fuentes(x_usuario_id), max_tokens=_max_tokens_salida(proveedor.nombre))
     except ErrorLLM as exc:
         espera = getattr(exc, "reintentar_en_s", None)
         raise HTTPException(

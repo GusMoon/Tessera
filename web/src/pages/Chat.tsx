@@ -1,33 +1,20 @@
 import { Fragment, useCallback, useEffect, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from 'react';
+import { TarjetaCotizacion } from '../components/Cotizacion';
 import { Icono } from '../components/Iconos';
 import { MedidorUso } from '../components/MedidorUso';
-import { enviarChat, obtenerConfigChat, obtenerUsoChat, type ConfigChat, type RespuestaChat, type UsoChat } from '../lib/api';
+import { obtenerConfigChat, obtenerUsoChat, type ConfigChat, type UsoChat } from '../lib/api';
+import { fechaCorta } from '../lib/conversaciones';
 import { tamanoLegible, tramosConNegrita } from '../lib/texto';
 import { useAlmacen } from '../state/Almacen';
-
-interface Mensaje {
-  id: number;
-  rol: 'usuario' | 'tessera';
-  texto: string;
-  archivos?: string[]; // nombres de los archivos que viajaron con este mensaje
-  meta?: string; // modelo · latencia · tokens
-  avisos?: string[];
-  error?: boolean;
-}
+import { MAX_ARCHIVOS, useChat } from '../state/Conversaciones';
 
 const SUGERENCIAS = [
-  'Cotiza 20 gabinetes metálicos con instalación y transporte a Mérida',
-  '¿Cuánto cobramos de flete a Progreso la última vez?',
-  'Prepara una cotización para 8 gabinetes GM-200 instalados',
+  'Cotiza 20 gabinetes NEMA 4X 40x30x20 con instalación y flete a Mérida',
+  'Necesito 15 tramos de tubo conduit pared delgada 3/4 y 30 coples de 3/4. Instalación incluida, entrega en Umán',
+  '5 interruptores termomagnéticos 1P 20A y 2 centros de carga 4 polos bifásico',
 ];
 
 const ACEPTA = '.txt,.md,.json,.log,.xml,.yaml,.yml,.csv,.tsv,.xlsx,.xlsm,.pdf,.png,.jpg,.jpeg,.webp,.gif';
-const MAX_ARCHIVOS = 5; // igual que api/chat.py
-
-/** Línea discreta bajo cada respuesta: qué modelo respondió y cuánto tardó. Los tokens van en la esquina (MedidorUso). */
-function metaDe(r: RespuestaChat): string {
-  return `${r.modelo} · ${r.latencia_s.toFixed(1)} s`;
-}
 
 /** Texto del modelo: respeta saltos de línea e interpreta solo la **negrita**. */
 function TextoModelo({ texto }: { texto: string }) {
@@ -39,22 +26,22 @@ function TextoModelo({ texto }: { texto: string }) {
 }
 
 export default function Chat() {
-  const { usuario } = useAlmacen();
-  const [mensajes, setMensajes] = useState<Mensaje[]>([]);
-  const [texto, setTexto] = useState('');
-  const [archivos, setArchivos] = useState<File[]>([]);
-  const [enviando, setEnviando] = useState(false);
+  const { usuario, cotizaciones } = useAlmacen();
+  const {
+    conversaciones, activa, mensajes, enviando, enviandoAqui, terminadas, guardado,
+    texto, setTexto, archivos, agregarArchivos, quitarArchivo, enviar, cancelar, nueva, abrir, borrar,
+  } = useChat();
   const [arrastrando, setArrastrando] = useState(false);
+  const [historialAbierto, setHistorialAbierto] = useState(false);
   const [config, setConfig] = useState<ConfigChat | null>(null);
   const [errorConfig, setErrorConfig] = useState<string | null>(null);
   const [uso, setUso] = useState<UsoChat | null>(null);
   const [errorUso, setErrorUso] = useState<string | null>(null);
-  const control = useRef<AbortController | null>(null);
   const refrescoTardio = useRef<number | undefined>(undefined);
   const finRef = useRef<HTMLDivElement>(null);
   const selector = useRef<HTMLInputElement>(null);
   const areaTexto = useRef<HTMLTextAreaElement>(null);
-  const siguiente = useRef(1);
+  const envoltorioHistorial = useRef<HTMLDivElement>(null);
 
   const refrescarUso = useCallback(() => {
     obtenerUsoChat()
@@ -72,12 +59,21 @@ export default function Chat() {
     return () => {
       window.clearInterval(cada);
       window.clearTimeout(refrescoTardio.current);
-      control.current?.abort();
     };
   }, [refrescarUso]);
+
+  // Cada mensaje (incluso uno que falló con 429) cambia lo que queda de la cuota. OpenRouter refleja el contador diario con
+  // ~30 s de retraso [Certeza: medido el 23/11/2026]: se vuelve a leer.
+  useEffect(() => {
+    if (terminadas === 0) return;
+    refrescarUso();
+    window.clearTimeout(refrescoTardio.current);
+    refrescoTardio.current = window.setTimeout(refrescarUso, 35_000);
+  }, [terminadas, refrescarUso]);
+
   useEffect(() => {
     finRef.current?.scrollIntoView({ block: 'end' });
-  }, [mensajes, enviando]);
+  }, [mensajes, enviandoAqui, activa?.id]);
   // La caja de texto crece con lo que se escribe (hasta un máximo en CSS) y vuelve a una línea al enviar.
   useEffect(() => {
     const el = areaTexto.current;
@@ -86,13 +82,20 @@ export default function Chat() {
     el.style.height = `${el.scrollHeight}px`;
   }, [texto]);
 
-  const agregarArchivos = (nuevos: File[]) => {
-    if (nuevos.length === 0) return;
-    setArchivos((actuales) => {
-      const unicos = nuevos.filter((n) => !actuales.some((a) => a.name === n.name && a.size === n.size));
-      return [...actuales, ...unicos].slice(0, MAX_ARCHIVOS);
-    });
-  };
+  // El historial se cierra al pulsar fuera o con Escape.
+  useEffect(() => {
+    if (!historialAbierto) return;
+    const fuera = (e: MouseEvent) => {
+      if (envoltorioHistorial.current && !envoltorioHistorial.current.contains(e.target as Node)) setHistorialAbierto(false);
+    };
+    const escape = (e: globalThis.KeyboardEvent) => e.key === 'Escape' && setHistorialAbierto(false);
+    document.addEventListener('mousedown', fuera);
+    document.addEventListener('keydown', escape);
+    return () => {
+      document.removeEventListener('mousedown', fuera);
+      document.removeEventListener('keydown', escape);
+    };
+  }, [historialAbierto]);
 
   const alElegir = (e: ChangeEvent<HTMLInputElement>) => {
     agregarArchivos(Array.from(e.target.files ?? []));
@@ -105,56 +108,18 @@ export default function Chat() {
     agregarArchivos(Array.from(e.dataTransfer.files));
   };
 
-  const agregarMensaje = (m: Omit<Mensaje, 'id'>) => setMensajes((ms) => [...ms, { ...m, id: siguiente.current++ }]);
-
-  const enviar = async (t: string) => {
-    const limpio = t.trim();
-    if (!limpio || enviando) return;
-    const historial = mensajes.filter((m) => !m.error).map((m) => ({ rol: m.rol, texto: m.texto }));
-    const adjuntos = archivos;
-    agregarMensaje({ rol: 'usuario', texto: limpio, archivos: adjuntos.map((a) => a.name) });
-    setTexto('');
-    setEnviando(true);
-    const controlador = new AbortController();
-    control.current = controlador;
-    try {
-      const r = await enviarChat({ mensaje: limpio, historial, archivos: adjuntos, signal: controlador.signal });
-      agregarMensaje({
-        rol: 'tessera',
-        texto: r.texto || '(sin respuesta)',
-        meta: metaDe(r),
-        avisos: r.avisos,
-        error: !r.texto,
-      });
-    } catch (e) {
-      if (e instanceof DOMException && e.name === 'AbortError') {
-        agregarMensaje({ rol: 'tessera', texto: 'Cancelaste la consulta. No se generó ninguna respuesta.', error: true });
-      } else {
-        agregarMensaje({ rol: 'tessera', texto: e instanceof Error ? e.message : 'Error inesperado.', error: true });
-      }
-    } finally {
-      setEnviando(false);
-      control.current = null;
-      refrescarUso(); // cada mensaje (incluso uno que falló con 429) cambia lo que queda
-      // OpenRouter refleja el contador diario con ~30 s de retraso [Certeza: medido el 23/11/2026]: se vuelve a leer.
-      window.clearTimeout(refrescoTardio.current);
-      refrescoTardio.current = window.setTimeout(refrescarUso, 35_000);
-    }
-  };
-
   const alTeclear = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      void enviar(texto);
+      void enviar();
     }
   };
 
-  const nueva = () => {
-    control.current?.abort();
-    setMensajes([]);
-    setArchivos([]);
-    setEnviando(false);
+  const borrarConversacion = (id: string, titulo: string) => {
+    if (window.confirm(`¿Borrar la conversación «${titulo}» del historial? Las cotizaciones que creó no se borran.`)) borrar(id);
   };
+
+  const puedeEnviar = (texto.trim() !== '' || archivos.length > 0) && !enviando;
 
   return (
     <div
@@ -169,9 +134,53 @@ export default function Chat() {
       onDrop={alSoltar}
     >
       <div className="chat__barra">
-        <strong>{mensajes.length === 0 ? 'Nueva conversación' : 'Conversación'}</strong>
+        <strong className="chat__titulo" title={activa?.titulo}>{activa ? activa.titulo : 'Nueva conversación'}</strong>
         <div className="chat__acciones">
           <MedidorUso uso={uso} error={errorUso} modeloVision={config?.modelo_vision} />
+          <div className="chat__historial-envoltorio" ref={envoltorioHistorial}>
+            <button
+              className="boton"
+              aria-expanded={historialAbierto}
+              aria-controls="historial-chat"
+              onClick={() => setHistorialAbierto((a) => !a)}
+            >
+              <Icono nombre="reloj" tamano={16} /> Historial{conversaciones.length > 0 ? ` (${conversaciones.length})` : ''}
+            </button>
+            {historialAbierto && (
+              <div className="chat__historial" id="historial-chat" role="region" aria-label={`Historial de conversaciones de ${usuario.nombre}`}>
+                <p className="selector-usuario__titulo">Conversaciones de {usuario.nombre}</p>
+                {conversaciones.length === 0 ? (
+                  <p className="texto-suave chat__historial-vacio">Aún no hay conversaciones guardadas. Se guardan solas al enviar el primer mensaje.</p>
+                ) : (
+                  <ul>
+                    {conversaciones.map((c) => (
+                      <li key={c.id} className={c.id === activa?.id ? 'chat__historial-fila chat__historial-fila--activa' : 'chat__historial-fila'}>
+                        <button
+                          className="chat__historial-item"
+                          aria-current={c.id === activa?.id ? 'true' : undefined}
+                          onClick={() => {
+                            abrir(c.id);
+                            setHistorialAbierto(false);
+                          }}
+                        >
+                          <span className="chat__historial-titulo">{c.titulo}</span>
+                          <span className="texto-suave">{fechaCorta(c.actualizada)} · {c.mensajes.length} mensajes</span>
+                        </button>
+                        <button className="boton-icono" aria-label={`Borrar la conversación ${c.titulo}`} onClick={() => borrarConversacion(c.id, c.titulo)}>
+                          <Icono nombre="borrar" tamano={14} />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="selector-usuario__nota texto-suave">
+                  {guardado
+                    ? 'Se guardan en este navegador (solo textos y nombres de archivo), una lista por usuario.'
+                    : 'Este navegador no dejó guardar el historial (espacio lleno o modo privado): se perderá al cerrar la pestaña.'}
+                </p>
+              </div>
+            )}
+          </div>
           <button className="boton" onClick={nueva}>
             <Icono nombre="mas" tamano={16} /> Nueva
           </button>
@@ -184,11 +193,11 @@ export default function Chat() {
             <div className="chat__vacio">
               <h1>¿Qué cotización necesitas?</h1>
               <p className="texto-suave">
-                Descríbela con tus palabras. Para probar la lectura de archivos, adjunta un PDF, Excel, CSV o una imagen (con el clip de la barra de mensajes o arrastrándolos aquí).
+                Descríbela con tus palabras, o adjunta la solicitud del cliente (PDF, Excel, CSV o texto de chat) con el clip o arrastrándola aquí: la leo y calculo los tres escenarios con tus fuentes.
               </p>
               <div className="sugerencias">
                 {SUGERENCIAS.map((s) => (
-                  <button key={s} className="sugerencia" onClick={() => void enviar(s)}>
+                  <button key={s} className="sugerencia" onClick={() => void enviar(s)} disabled={enviando}>
                     {s}
                   </button>
                 ))}
@@ -212,16 +221,20 @@ export default function Chat() {
                 {m.avisos?.map((a) => (
                   <p key={a} className="chat__aviso"><Icono nombre="alerta" tamano={14} /> {a}</p>
                 ))}
+                {m.cotizacionId && (() => {
+                  const cot = cotizaciones.find((c) => c.id === m.cotizacionId);
+                  return cot ? <TarjetaCotizacion cotizacion={cot} /> : null;
+                })()}
                 {m.meta && <span className="chat__meta">{m.meta}</span>}
               </div>
             </div>
           ))}
 
-          {enviando && (
+          {enviandoAqui && (
             <div className="herramientas" role="status">
               <span className="girando" aria-hidden="true" />
-              <span>Esperando al modelo…</span>
-              <button className="boton boton--chico" onClick={() => control.current?.abort()}>Cancelar</button>
+              <span>Leyendo tu solicitud, buscando precios y calculando…</span>
+              <button className="boton boton--chico" onClick={cancelar}>Cancelar</button>
             </div>
           )}
           <div ref={finRef} />
@@ -233,21 +246,16 @@ export default function Chat() {
           {archivos.map((a) => (
             <span key={a.name + a.size} className="etiqueta">
               <Icono nombre="archivo" tamano={12} /> {a.name} · {tamanoLegible(a.size)}
-              <button
-                type="button"
-                className="chat__quitar"
-                aria-label={`Quitar ${a.name}`}
-                onClick={() => setArchivos((as) => as.filter((x) => x !== a))}
-              >
+              <button type="button" className="chat__quitar" aria-label={`Quitar ${a.name}`} onClick={() => quitarArchivo(a)}>
                 <Icono nombre="cerrar" tamano={12} />
               </button>
             </span>
           ))}
-          <span className="texto-suave chat__pista">Se reenvían con cada mensaje hasta que los quites.</span>
+          <span className="texto-suave chat__pista">Si traen materiales con cantidades, se cotizan solos; si no, los lee el modelo. Se quitan al crear la cotización.</span>
         </div>
       )}
 
-      <form className="chat__entrada" onSubmit={(e) => { e.preventDefault(); void enviar(texto); }}>
+      <form className="chat__entrada" onSubmit={(e) => { e.preventDefault(); void enviar(); }}>
         <label className="solo-lectores" htmlFor="solicitud">Solicitud de cotización</label>
         <input ref={selector} type="file" multiple accept={ACEPTA} onChange={alElegir} hidden />
         <button
@@ -267,9 +275,9 @@ export default function Chat() {
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           onKeyDown={alTeclear}
-          placeholder="Escribe tu solicitud…"
+          placeholder={archivos.length > 0 ? 'Opcional: añade una indicación o pulsa Enviar para cotizar los archivos…' : 'Escribe tu solicitud…'}
         />
-        <button className="boton boton--primario chat__enviar" type="submit" disabled={!texto.trim() || enviando}>
+        <button className="boton boton--primario chat__enviar" type="submit" disabled={!puedeEnviar}>
           <Icono nombre="enviar" tamano={16} /> Enviar
         </button>
       </form>
@@ -277,9 +285,9 @@ export default function Chat() {
         {errorConfig
           ? errorConfig
           : config
-            ? `Modo prueba · ${config.proveedor}: ${config.modelo}. `
+            ? `Conversación: ${config.proveedor} · ${config.modelo}. `
             : 'Conectando con la API… '}
-        Enter envía, Mayús+Enter salta de línea. Aún no consulta la base de datos ni calcula cotizaciones: no uses sus cifras como precios.
+        Enter envía, Mayús+Enter salta de línea. Las cotizaciones usan tus fuentes y las calcula código; las respuestas de conversación del modelo no son fuente de precios.
       </p>
     </div>
   );

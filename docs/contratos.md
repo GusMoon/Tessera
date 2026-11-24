@@ -42,6 +42,8 @@ Errores: cuerpo `{"detail": "<mensaje legible>"}`. 400 entrada inválida, 429 l�
 
 `GET /api/chat/config` — `proveedor`, `modelo`, `modelo_vision` (nunca la clave).
 
+Contexto de fuentes: si la petición trae `X-Usuario-Id`, el prompt de sistema incluye cuántas filas hay cargadas por fuente (solo las que ese usuario puede abrir, regla 6) y cómo se pide una cotización (`agent/contexto.py`). Así el modelo no responde «no tengo acceso a ningún archivo» con un catálogo cargado. Son conteos, nunca precios.
+
 - Sin estado: el cliente reenvía el historial (solo texto) y los archivos que quiera que el modelo vea en ese turno. Los archivos se leen en memoria y **no se guardan** (regla 7).
 - Si algún archivo es imagen, se usa `OPENROUTER_MODEL_VISION` (u `OLLAMA_MODEL_VISION`) en lugar del modelo de texto. Debe terminar en `:free` con OpenRouter.
 - Cada archivo de texto se recorta a 12,000 caracteres; se avisa en `avisos`.
@@ -109,3 +111,29 @@ Quién lo ofrece: C (agente). Solo desarrollo y pruebas, igual que OpenRouter.
 ## Casos de evaluación (`data/eval/casos.json`)
 
 `{"version", "nota", "casos": [{"id", "autor", "estado_revision", "solicitud", "renglones": [{"sku", "cantidad"}], "servicios": [{"codigo", "cantidad"}], "folio_parecido", "esperado": {escenario: {"subtotal_centavos", "iva_centavos", "total_centavos"}}}]}`. `esperado` lo calcula `eval/referencia.py --actualizar`, de forma independiente de `agent/tools`. Hoy son un borrador de Claude pendiente de revisión por el equipo.
+
+## Cotizaciones, memoria y bitácora (`api/cotizaciones.py`, `api/panel.py`) — Hito 3
+
+Todas las rutas (salvo `GET /api/usuarios`) exigen `X-Usuario-Id`; sin él, 401. Un rol sin permiso recibe 403 con el motivo (matriz en `docs/permisos.md`). Los importes son **centavos enteros**; los totales los calcula el servidor.
+
+**Cotizaciones**
+
+| Ruta | Qué hace | Rol |
+|---|---|---|
+| `POST /api/cotizaciones` `{solicitud, cliente?}` | Interpreta la solicitud con las fuentes cargadas. Responde `{"tipo": "cotizacion", cotizacion, avisos, tiempos_ms, redaccion}` (201, guardada como Borrador), `{"tipo": "aclaracion", preguntas, avisos}` (200, no se guarda) o `{"tipo": "conversacion"}` (200: no pide materiales con cantidad; que la atienda `/api/chat`). 409 si no hay fuentes cargadas. | todos |
+| `POST /api/cotizaciones/desde-archivos` (multipart: `mensaje?`, `archivos` 1..5) | Cotiza lo que piden los archivos adjuntos (PDF, Excel, CSV o texto de chat), solos o junto con el mensaje. `agent/solicitud_archivos.py` los convierte, sin modelo, en renglones («12 piezas de …») y frases de servicio («flete a Progreso») para el mismo intérprete y la misma calculadora de `POST /api/cotizaciones`; el cliente sale del archivo («Cliente:», columna Obra, remitente del chat o título). Los archivos se leen en memoria y no se guardan. Misma respuesta que `POST /api/cotizaciones`, con un aviso «Se leyeron los archivos: …». Si no traen renglones con cantidad (una imagen, una nota) responde `{"tipo": "conversacion"}` y el chat los atiende. | todos |
+| `GET /api/cotizaciones` · `GET /api/cotizaciones/{id}` | Lista (la más reciente primero) o detalle. | todos |
+| `PATCH /api/cotizaciones/{id}/partidas/{partida_id}` `{cantidad?, precio_unitario_centavos?}` | Edita una partida (enteros; cantidad ≥ 1). La marca como «editada» y lo anota en el historial. 409 si ya no está en Borrador o En revisión; 422 si el valor no es válido. | todos |
+| `PATCH /api/cotizaciones/{id}/escenarios/{economico\|recomendado\|premium}` `{notas}` | Edita las notas del agente. | todos |
+| `POST /api/cotizaciones/{id}/enviar` | Borrador → En revisión. | todos |
+| `POST /api/cotizaciones/{id}/aprobar` `{escenario}` | Registra la aprobación (quién, cuándo y el total) y deja la cotización Aprobada. | Responsable comercial, Administrador |
+| `POST /api/cotizaciones/{id}/rechazar` `{motivo}` | Rechaza. | Responsable comercial, Administrador |
+| `GET /api/cotizaciones/{id}/pdf` | PDF de la cotización aprobada (`application/pdf`). **409 si no hay aprobación registrada** (regla 3). | todos |
+
+Detalle de cotización: `id`, `folio` («#0007»), `cliente`, `solicitud`, `fecha`, `estado`, `creada_por`, `escenario_aprobado`, `motivo_rechazo`, `aprobada_por`, `fecha_aprobacion`, `escenarios[e] = {notas, riesgos, margen_objetivo_puntos_base, partidas[], totales}`, `historial[]`, `avisos[]`, `parecidas[]` (cotizaciones históricas consultadas) y `fuentes{ref: {etiqueta, fecha, ubicacion, extracto, documento, permiso, restringido, disponible}}`. Cada partida lleva `fuente_ref`, `fuente_fecha`, `antiguedad_meses`, `precio_antiguo` y `editada_por`. El `extracto` de una fuente que el usuario no puede abrir llega `null` con `restringido: true`.
+
+**Memoria:** `GET /api/memoria` (todos) · `POST /api/memoria {texto, origen?}` (todos; entra «por confirmar») · `PATCH /api/memoria/{id} {texto?, estado?}` · `POST /api/memoria/{id}/confirmar` · `DELETE /api/memoria/{id}` (estas tres, Responsable comercial y Administrador; editar el texto vuelve a dejar el hecho «por confirmar»).
+
+**Bitácora:** `GET /api/bitacora` (un Vendedor ve solo sus entradas). **Usuarios:** `GET /api/usuarios` (sin identidad; alimenta el selector). **Ajustes:** `GET /api/ajustes` (modelo, `modo_demo`, embedder, fragmentos indexados, latencia de la última cotización y última evaluación guardada). **Datos de trabajo:** `DELETE /api/datos` (Administrador; borra cotizaciones, aprobaciones, memoria y bitácora, y conserva fuentes y usuarios).
+
+**Fuentes:** `POST /api/fuentes/subir`, `POST /api/fuentes/cargar-dataset-sintetico` y `POST /api/fuentes/limpiar` ahora exigen Administrador.

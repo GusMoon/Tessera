@@ -20,6 +20,8 @@ def registrar(
     cotizacion: str | None = None,
     aprobado_por: str | None = None,
 ) -> int:
+    fila = conn.execute("SELECT nombre FROM usuarios WHERE id = ?", (usuario,)).fetchone()
+    usuario = fila["nombre"] if fila else usuario  # admite el id de usuario o un nombre ya resuelto
     cur = conn.execute(
         """INSERT INTO bitacora (fecha, usuario, pregunta, documentos_json, herramientas_json, duracion_ms, cotizacion, aprobado_por)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",

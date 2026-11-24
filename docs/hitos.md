@@ -37,8 +37,27 @@ Script: `python eval/evaluar.py` sobre los 50 casos de `data/eval/casos.json`. R
 4. **No hay medición del LLM como parte del veredicto.** Con Groq (`openai/gpt-oss-20b`) se redactaron 3 casos sin descartes (0.8 a 2.1 s) y con `MODO_DEMO` 0.1 a 0.2 s; son pruebas de humo, no una evaluación de calidad de la redacción.
 5. El tool calling nativo del modelo no se usa ni se midió: el código encadena las herramientas.
 
-Pruebas: `python -m pytest` (219 pruebas, sin red) y `npm test` en `web/` (24 pruebas, incluida la paridad de la calculadora con el backend) [Certeza].
+Pruebas: `python -m pytest` (219 pruebas al cierre del Hito 2, sin red) y `npm test` en `web/` (24 pruebas, incluida la paridad de la calculadora con el backend) [Certeza].
 
-## Hito 3 · Salida (revisión, aprobación y PDF) — PENDIENTE
+## Hito 3 · Salida (revisión, aprobación y PDF) — IMPLEMENTADO; los 3 puntos del documento verificados en el navegador
 
-No iniciado. Falta: rutas de cotizaciones, memoria, bitácora y usuarios en la API; PDF con ReportLab bloqueado hasta que exista una aprobación registrada (regla 3); y conectar la interfaz a la API para que Revisión use datos reales (ámbar con ⚠ para precios de más de 6 meses, recálculo en menos de 1 s, «Aprobar y PDF» bloqueado).
+Verificación del 23/11/2026 con el backend y la interfaz reales (base temporal, `MODO_DEMO=true` para no gastar cuota del LLM) [Certeza] y con pruebas automáticas.
+
+| Punto del documento | Resultado |
+|---|---|
+| Partidas con precio de más de 6 meses en ámbar con ⚠ y antigüedad | Verificado en pantalla: «INT-TM-120 · ⚠ 8 meses» en ámbar, más el aviso de la cotización. Los umbrales usan «7 o más meses cumplidos» (`antiguedad_meses > 6`), igual en backend y en interfaz. |
+| Editar una cantidad recalcula en menos de 1 s y marca «editada» | Verificado en pantalla: cantidad 20 → 25 cambió el total en el acto, marcó «editada por …» y quedó en el historial. El recálculo se pinta en el navegador (sin esperar a la red) y el servidor valida y es la fuente de verdad; **no medí en milisegundos el tiempo de pintado**: lo observado fue «inmediato» en la captura siguiente a la edición. |
+| «Aprobar y PDF» bloqueado hasta aprobar; el PDF cita las fuentes | La aprobación es un registro en `aprobaciones`; `GET /api/cotizaciones/{id}/pdf` responde 409 sin él (prueba automática con los tres roles) y `generar_pdf` es la única puerta al PDF (prueba que recorre el código). El PDF generado se revisó leyéndolo: cita cada partida con su fuente y fecha, marca los precios viejos y nombra al aprobador. |
+
+Pruebas al cierre del Hito 3: `python -m pytest` (260 pruebas, sin red) y `npm test` en `web/` (34 pruebas) [Certeza]. `npm run build` compila.
+
+**Añadido después del cierre (24/11/2026):** cotizar desde archivos adjuntos, historial del chat guardado y contexto de fuentes para el modelo de conversación (ver `docs/contratos.md`). Verificado: los 4 documentos de `data/pruebas_agente/` se cotizan completos y sus totales coinciden con `eval/referencia.py`; pruebas: `python -m pytest` 301, `npm test` 43 [Certeza]. **No medido:** la lectura de archivos reales de una empresa (solo se probó con los documentos sintéticos que escribió Claude; otros formatos de tabla pueden no reconocerse y entonces se avisa).
+
+**Reservas:**
+
+1. **Los roles no son autenticación.** La identidad es una cabecera `X-Usuario-Id` que elige el selector de la interfaz; cualquiera que conozca un id la puede usar. Sirve para probar permisos, no para proteger nada (decisiones abiertas 1 y 6).
+2. **La matriz de permisos es una propuesta mía** (`docs/permisos.md`) y la debe validar la Persona E.
+3. **Descarga del PDF:** verifiqué el flujo (aprobación, bitácora «generar_pdf», PDF válido leído desde la API); no pude confirmar visualmente el archivo guardado por el navegador.
+4. **Cliente:** se detecta solo si la solicitud empieza con «Para <Cliente>:». Si no, queda «Cliente por definir» (no hay aún un campo para editarlo).
+5. **Aclaraciones:** si el sistema pregunta («¿cuál cable?»), la respuesta no se encadena sola: la solicitud original vuelve al cuadro de texto para que la edites.
+6. Un error real que las pruebas no vieron lo encontró el recorrido en el navegador: la API cerraba la conexión SQLite en otro hilo y respondía 500. Se corrigió y quedó una prueba de regresión.

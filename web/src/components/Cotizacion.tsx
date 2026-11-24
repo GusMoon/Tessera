@@ -177,9 +177,9 @@ export function TablaPartidas({
                 <td data-etiqueta="Fuente">
                   <div className="celda-fuente">
                     <ChipFuente citaId={p.citaId} activo={citaActiva === p.citaId} onAbrir={onVerFuente} />
-                    {cita && <TrazaAntiguedad fecha={cita.fecha} anima retraso={i * 70} />}
+                    {cita?.fecha && <TrazaAntiguedad fecha={cita.fecha} anima retraso={i * 70} />}
                   </div>
-                  {cita && <span className="solo-lectores">Fecha del dato {formatoFecha(cita.fecha)}</span>}
+                  {cita?.fecha && <span className="solo-lectores">Fecha del dato {formatoFecha(cita.fecha)}</span>}
                 </td>
               </tr>
             );

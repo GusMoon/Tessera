@@ -132,14 +132,21 @@ def orquestar(
                 redaccion["aviso"] = f"El modelo no pudo redactar ({exc}); se muestra el resultado calculado sin redacción."
     resultado["redaccion"] = redaccion
 
+    herramientas = ["interpretar", "buscar_precios", "buscar_historial"]
+    if resultado["estado"] == "completa":
+        herramientas.append("calcular_cotizacion")
+    if redaccion["origen"] in ("llm", "demo"):
+        herramientas.append(f"redaccion:{redaccion['origen']}")
+    resultado["herramientas"] = herramientas
+    resultado["duracion_ms"] = int((time.perf_counter() - inicio) * 1000)
     if registrar_bitacora:
-        herramientas = ["interpretar", "buscar_precios", "buscar_historial"]
-        if resultado["estado"] == "completa":
-            herramientas.append("calcular_cotizacion")
-        if redaccion["origen"] in ("llm", "demo"):
-            herramientas.append(f"redaccion:{redaccion['origen']}")
-        bitacora.registrar(
-            conn, usuario_id, solicitud, [f["ref"] for f in resultado["fuentes"]], herramientas,
-            int((time.perf_counter() - inicio) * 1000),
-        )
+        registrar_en_bitacora(conn, usuario_id, resultado)
     return resultado
+
+
+def registrar_en_bitacora(conn: sqlite3.Connection, usuario_id: str, resultado: dict) -> int:
+    """Anota la solicitud en la bitácora (qué se pidió, qué fuentes y herramientas, cuánto tardó) y devuelve su id."""
+    resultado["bitacora_id"] = bitacora.registrar(
+        conn, usuario_id, resultado["solicitud"], [f["ref"] for f in resultado["fuentes"]], resultado["herramientas"], resultado["duracion_ms"]
+    )
+    return resultado["bitacora_id"]

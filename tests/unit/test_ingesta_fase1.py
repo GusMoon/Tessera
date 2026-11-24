@@ -160,7 +160,7 @@ def test_vaciar_ingesta_conserva_el_trabajo_del_usuario(bd):
 
 # --------------------------------------------------------------------------- API de fuentes
 def test_api_fuentes_expone_y_acepta_permiso(bd):
-    cliente = TestClient(app)  # sin `with`: no corre el arranque; la base ya la preparó el fixture
+    cliente = TestClient(app, headers={"X-Usuario-Id": "u3"})  # sin `with`: no corre el arranque; la base ya la preparó el fixture
     datos = (SINTETICOS / "catalogo_materiales.csv").read_bytes()
     r = cliente.post("/api/fuentes/subir", files={"file": ("catalogo.csv", datos, "text/csv")}, data={"permiso": "Comercial"})
     assert r.status_code == 200 and r.json()["fuente"]["permiso"] == "Comercial"
@@ -170,7 +170,7 @@ def test_api_fuentes_expone_y_acepta_permiso(bd):
 
 
 def test_api_cargar_dataset_incluye_tarifario_y_limpiar_conserva_usuarios(bd):
-    cliente = TestClient(app)
+    cliente = TestClient(app, headers={"X-Usuario-Id": "u3"})  # Administrador: cambiar fuentes es suyo
     r = cliente.post("/api/fuentes/cargar-dataset-sintetico")
     assert r.status_code == 200 and r.json()["archivos_procesados"] == 13
     assert cliente.post("/api/fuentes/limpiar").status_code == 200

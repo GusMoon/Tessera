@@ -31,7 +31,7 @@ def sistema(tmp_path_factory):
 
     olvidar_indice()
     init_db(reset=True)
-    with TestClient(app) as cliente:
+    with TestClient(app, headers={"X-Usuario-Id": "u3"}) as cliente:
         r = cliente.post("/api/fuentes/cargar-dataset-sintetico")
         assert r.status_code == 200 and r.json()["archivos_procesados"] == 13
         assert (carpeta / "indice" / "meta.json").exists()  # el reindexado se disparó solo tras la carga

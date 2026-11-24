@@ -33,11 +33,14 @@ def get_db_path() -> Path:
     return Path(os.environ.get("TESSERA_DB_PATH", str(DB_PATH)))
 
 
-def get_connection() -> sqlite3.Connection:
-    """Abre y configura una conexión SQLite con soporte de claves foráneas y filas como diccionarios."""
+def get_connection(entre_hilos: bool = False) -> sqlite3.Connection:
+    """Abre y configura una conexión SQLite con soporte de claves foráneas y filas como diccionarios.
+
+    `entre_hilos=True` permite cerrarla desde otro hilo: FastAPI abre y cierra la dependencia de cada petición en hilos
+    distintos de su pool. Se usa una conexión por petición y nunca en dos hilos a la vez, así que es seguro."""
     db_file = get_db_path()
     db_file.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(db_file), timeout=15.0)
+    conn = sqlite3.connect(str(db_file), timeout=15.0, check_same_thread=not entre_hilos)
     conn.execute("PRAGMA foreign_keys = ON;")
     conn.execute("PRAGMA journal_mode = WAL;")
     conn.row_factory = sqlite3.Row
@@ -52,6 +55,8 @@ def _migrar(conn: sqlite3.Connection) -> None:
     """Agrega a bases ya existentes las columnas nuevas (`CREATE TABLE IF NOT EXISTS` no las agrega)."""
     if "permiso" not in _columnas(conn, "fuentes"):
         conn.execute("ALTER TABLE fuentes ADD COLUMN permiso TEXT NOT NULL DEFAULT 'Todos'")
+    if "contexto_json" not in _columnas(conn, "cotizaciones"):
+        conn.execute("ALTER TABLE cotizaciones ADD COLUMN contexto_json TEXT NOT NULL DEFAULT '{}'")
 
 
 def _sembrar_usuarios(conn: sqlite3.Connection) -> None:

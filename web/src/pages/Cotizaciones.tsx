@@ -9,7 +9,7 @@ import { escenarioVigente, useAlmacen } from '../state/Almacen';
 import type { Cotizacion, EstadoCotizacion } from '../data/tipos';
 import { ESCENARIOS } from '../data/tipos';
 import { formatoFecha, formatoMXN } from '../lib/dinero';
-import { useEstadoSimulado } from '../lib/useEstadoSimulado';
+import { useEstadoPantalla } from '../lib/useEstadoPantalla';
 
 const ESTADOS: EstadoCotizacion[] = ['Borrador', 'En revisión', 'Aprobada', 'Rechazada'];
 
@@ -34,7 +34,7 @@ function VistaRapida({ c }: { c: Cotizacion }) {
 export default function Cotizaciones() {
   const { cotizaciones } = useAlmacen();
   const { abrir } = usePanel();
-  const { estado, reintentar } = useEstadoSimulado();
+  const { estado, reintentar, error } = useEstadoPantalla();
   const [params] = useSearchParams();
   const [texto, setTexto] = useState(params.get('q') ?? '');
   const [filtroEstado, setFiltroEstado] = useState('');
@@ -70,6 +70,7 @@ export default function Cotizaciones() {
       <ContenidoConEstados
         estado={estado}
         reintentar={reintentar}
+        mensajeError={error}
         vacio={{ titulo: 'Aún no hay cotizaciones', texto: 'Pide la primera en el chat.', accion: { etiqueta: 'Ir al chat', a: '/' } }}
       >
         <form onSubmit={(e) => e.preventDefault()} role="search" aria-label="Filtros de cotizaciones">

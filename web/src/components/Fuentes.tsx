@@ -51,35 +51,36 @@ function AvisoRestringido({ permiso }: { permiso: string }) {
 
 export function DetalleCita({ citaId }: { citaId: string }) {
   const { citaPorId, documentoPorId } = useAlmacen();
-  const puede = useAccesoDocumento();
   const cita = citaPorId(citaId);
-  const doc = cita ? documentoPorId(cita.documentoId) : undefined;
-  if (!cita || !doc) return <p>Fuente no encontrada.</p>;
+  if (!cita) return <p>Fuente no encontrada.</p>;
+  const doc = cita.documentoId ? documentoPorId(cita.documentoId) : undefined;
   return (
     <div className="detalle">
       <h3>{cita.etiqueta}</h3>
       <dl className="lista-datos">
         <dt>Documento</dt>
-        <dd>{doc.nombre}</dd>
+        <dd>{cita.documentoNombre}</dd>
         <dt>Ubicación</dt>
         <dd>{cita.ubicacion}</dd>
         <dt>Fecha del dato</dt>
         <dd>
-          {formatoFecha(cita.fecha)} · <AvisoAntiguedad fecha={cita.fecha} />
+          {cita.fecha ? (
+            <>
+              {formatoFecha(cita.fecha)} · <AvisoAntiguedad fecha={cita.fecha} />
+            </>
+          ) : (
+            'El dato no trae fecha'
+          )}
         </dd>
         <dt>Estado</dt>
-        <dd>
-          <InsigniaEstado estado={doc.estado} />
-        </dd>
+        <dd>{doc ? <InsigniaEstado estado={doc.estado} /> : <span className="texto-suave">El documento ya no está cargado</span>}</dd>
         <dt>Permisos</dt>
-        <dd>
-          <EtiquetaPermiso permiso={doc.permisos} />
-        </dd>
+        <dd>{cita.permiso ? <EtiquetaPermiso permiso={cita.permiso} /> : <span className="texto-suave">—</span>}</dd>
       </dl>
-      {puede(doc) ? (
-        <blockquote className="extracto">{cita.extracto}</blockquote>
+      {cita.restringido ? (
+        <AvisoRestringido permiso={cita.permiso ?? 'Administración'} />
       ) : (
-        <AvisoRestringido permiso={doc.permisos} />
+        <blockquote className="extracto">{cita.extracto || 'Sin extracto disponible.'}</blockquote>
       )}
     </div>
   );

@@ -6,20 +6,19 @@ import { InsigniaEstado } from '../components/Insignia';
 import { useAlmacen } from '../state/Almacen';
 import type { HechoMemoria } from '../data/tipos';
 import { ChipFecha } from '../components/Traza';
-import { useEstadoSimulado } from '../lib/useEstadoSimulado';
+import { useEstadoPantalla } from '../lib/useEstadoPantalla';
 
 export default function Memoria() {
-  const { memoria, editarHecho, alternarPausa, confirmarHecho, borrarHecho, avisar, usuario } = useAlmacen();
-  const { estado, reintentar } = useEstadoSimulado();
+  const { memoria, editarHecho, alternarPausa, confirmarHecho, borrarHecho, avisar, puedeAprobar } = useAlmacen();
+  const { estado, reintentar, error } = useEstadoPantalla();
   const [editando, setEditando] = useState<string | null>(null);
   const [borrador, setBorrador] = useState('');
   const [porBorrar, setPorBorrar] = useState<HechoMemoria | null>(null);
-  const puedeConfirmar = usuario.rol !== 'Vendedor';
+  const puedeGestionar = puedeAprobar; // el servidor también lo exige: solo quien aprueba edita, pausa, confirma y borra
 
   const guardar = (id: string) => {
     if (borrador.trim()) {
-      editarHecho(id, borrador.trim());
-      avisar('Hecho actualizado.');
+      void editarHecho(id, borrador.trim()).then(() => avisar('Hecho actualizado. Vuelve a quedar «Por confirmar».', 'info'));
     }
     setEditando(null);
   };
@@ -33,6 +32,7 @@ export default function Memoria() {
       <ContenidoConEstados
         estado={estado}
         reintentar={reintentar}
+        mensajeError={error}
         vacio={{ titulo: 'Aún no hay hechos guardados', texto: 'Cuando apruebes o edites una cotización, podrás guardar el ajuste como aprendizaje.' }}
       >
         {memoria.length === 0 ? (
@@ -71,12 +71,17 @@ export default function Memoria() {
                       </>
                     ) : (
                       <>
-                        {h.porConfirmar && puedeConfirmar && (
-                          <button className="boton boton--chico boton--primario" onClick={() => { confirmarHecho(h.id); avisar('Hecho confirmado.'); }}>Confirmar</button>
+                        {!puedeGestionar && <span className="texto-suave">Solo quien aprueba puede gestionarla</span>}
+                        {puedeGestionar && h.porConfirmar && (
+                          <button className="boton boton--chico boton--primario" onClick={() => { void confirmarHecho(h.id); avisar('Hecho confirmado.'); }}>Confirmar</button>
                         )}
-                        <button className="boton boton--chico" onClick={() => { setEditando(h.id); setBorrador(h.texto); }}>Editar</button>
-                        <button className="boton boton--chico" onClick={() => alternarPausa(h.id)}>{h.estado === 'Activa' ? 'Pausar' : 'Reanudar'}</button>
-                        <button className="boton boton--chico boton--peligro-suave" onClick={() => setPorBorrar(h)}>Borrar</button>
+                        {puedeGestionar && (
+                          <>
+                            <button className="boton boton--chico" onClick={() => { setEditando(h.id); setBorrador(h.texto); }}>Editar</button>
+                            <button className="boton boton--chico" onClick={() => void alternarPausa(h.id)}>{h.estado === 'Activa' ? 'Pausar' : 'Reanudar'}</button>
+                            <button className="boton boton--chico boton--peligro-suave" onClick={() => setPorBorrar(h)}>Borrar</button>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
@@ -95,7 +100,7 @@ export default function Memoria() {
         peligro
         onCancelar={() => setPorBorrar(null)}
         onConfirmar={() => {
-          if (porBorrar) borrarHecho(porBorrar.id);
+          if (porBorrar) void borrarHecho(porBorrar.id);
           setPorBorrar(null);
           avisar('Hecho borrado de la memoria.', 'info');
         }}

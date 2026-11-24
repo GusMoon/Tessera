@@ -4,7 +4,7 @@ import { CifraAnimada } from '../components/CifraAnimada';
 import { DialogoConfirmacion } from '../components/Dialogo';
 import { DockAprobacion } from '../components/Dock';
 import { EstadoVacio } from '../components/Estados';
-import { DetalleCita } from '../components/Fuentes';
+import { ChipFuente, DetalleCita } from '../components/Fuentes';
 import { TablaPartidas } from '../components/Cotizacion';
 import { Icono } from '../components/Iconos';
 import { PasosEstado } from '../components/Pasos';
@@ -26,6 +26,12 @@ export default function Revision() {
   const [citaActiva, setCitaActiva] = useState<string | undefined>();
   const [dialogo, setDialogo] = useState<Dialogo>('ninguno');
   const [motivo, setMotivo] = useState('');
+  const [trabajando, setTrabajando] = useState(false);
+
+  // Las notas se editan en local y se guardan al salir del campo (una edición = una entrada en el historial).
+  const notasServidor = cot?.escenarios[escenario].notas ?? '';
+  const [notas, setNotas] = useState(notasServidor);
+  useEffect(() => setNotas(notasServidor), [cot?.id, escenario, notasServidor]);
 
   // Si ya está aprobada, abre en el escenario aprobado.
   useEffect(() => {
@@ -61,7 +67,7 @@ export default function Revision() {
   const editable = cot.estado === 'Borrador' || cot.estado === 'En revisión';
   const antiguas = esc.partidas.filter((p) => {
     const cita = a.citaPorId(p.citaId);
-    return cita && mesesDeAntiguedad(cita.fecha) > UMBRAL_ANTIGUEDAD_MESES;
+    return cita?.fecha && mesesDeAntiguedad(cita.fecha) > UMBRAL_ANTIGUEDAD_MESES;
   }).length;
   const ediciones = ESCENARIOS.reduce((n, e) => n + cot.escenarios[e.id].partidas.filter((p) => p.editadaPor).length, 0);
 
@@ -76,14 +82,21 @@ export default function Revision() {
     }
   };
 
-  const confirmarAprobacion = () => {
-    a.aprobar(cot.id, escenario);
+  const confirmarAprobacion = async () => {
+    setTrabajando(true);
+    const ok = await a.aprobar(cot.id, escenario);
+    setTrabajando(false);
+    if (!ok) {
+      setDialogo('ninguno');
+      return;
+    }
     setDialogo(ediciones > 0 ? 'aprendizaje' : 'ninguno');
-    a.avisar(`Cotización ${cot.folio} aprobada. PDF disponible para descargar.`);
+    a.avisar(`Cotización ${cot.folio} aprobada. Se descarga el PDF.`);
+    await a.descargarPdf(cot.id); // el servidor solo lo entrega porque ya existe la aprobación registrada
   };
 
-  const guardarAprendizaje = () => {
-    a.guardarAprendizaje(cot.id, `Ajuste en la Cot. ${cot.folio}: ${cot.cliente} requirió ediciones manuales antes de aprobar.`);
+  const guardarAprendizaje = async () => {
+    await a.guardarAprendizaje(cot.id, `Ajuste en la Cot. ${cot.folio}: ${cot.cliente} requirió ediciones manuales antes de aprobar.`);
     setDialogo('ninguno');
     a.avisar('Guardado en Memoria como «Por confirmar».', 'info');
   };
@@ -98,6 +111,15 @@ export default function Revision() {
         </div>
         <PasosEstado estado={cot.estado} />
       </header>
+
+      {cot.avisos.length > 0 && (
+        <div className="aviso-parcial" role="note">
+          <Icono nombre="alerta" tamano={16} />
+          <ul className="lista-simple">
+            {cot.avisos.map((t) => <li key={t}>{t}</li>)}
+          </ul>
+        </div>
+      )}
 
       {cot.estado === 'Aprobada' && cot.aprobadaPor && cot.fechaAprobacion && (
         <p className="aviso-parcial aviso-parcial--ok" role="note">
@@ -166,9 +188,10 @@ export default function Revision() {
               id="notas"
               className="entrada entrada--area"
               rows={5}
-              value={esc.notas}
+              value={notas}
               disabled={!editable}
-              onChange={(e) => a.actualizarNotas(cot.id, escenario, e.target.value)}
+              onChange={(e) => setNotas(e.target.value)}
+              onBlur={() => a.actualizarNotas(cot.id, escenario, notas)}
             />
           </div>
           <div>
@@ -185,6 +208,20 @@ export default function Revision() {
           </div>
         </div>
 
+        {cot.parecidas.length > 0 && (
+          <>
+            <h2>Cotizaciones históricas parecidas</h2>
+            <p className="texto-suave">Se consultaron al armar esta cotización; abre una para ver qué se cotizó entonces.</p>
+            <ul className="lista-simple parecidas">
+              {cot.parecidas.map((h) => (
+                <li key={h.ref}>
+                  <ChipFuente citaId={h.ref} onAbrir={verFuente} activo={citaActiva === h.ref} /> <span className="texto-suave">{h.cliente} · {h.fecha ? formatoFecha(h.fecha) : 'sin fecha'}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
         <h2>Historial de cambios</h2>
         <ol className="linea-tiempo">
           {[...cot.historial].reverse().map((h, i) => (
@@ -200,17 +237,19 @@ export default function Revision() {
         estado={cot.estado}
         escenario={etiquetaEscenario}
         total={r.total}
+        puedeAprobar={a.puedeAprobar}
+        onEnviar={() => void a.enviarARevision(cot.id)}
         onAprobar={() => setDialogo('aprobar')}
         onRechazar={() => setDialogo('rechazar')}
-        onDescargar={() => a.avisar('PDF simulado: el prototipo todavía no genera archivos.', 'info')}
+        onDescargar={() => void a.descargarPdf(cot.id)}
       />
 
       <DialogoConfirmacion
         abierto={dialogo === 'aprobar'}
         titulo={`Aprobar la cotización ${cot.folio}`}
-        textoConfirmar="Aprobar y generar PDF"
+        textoConfirmar={trabajando ? 'Aprobando…' : 'Aprobar y generar PDF'}
         onCancelar={() => setDialogo('ninguno')}
-        onConfirmar={confirmarAprobacion}
+        onConfirmar={() => void confirmarAprobacion()}
       >
         <dl className="lista-datos">
           <dt>Escenario</dt><dd>{etiquetaEscenario}</dd>
@@ -218,7 +257,7 @@ export default function Revision() {
           <dt>Total</dt><dd className="cifra">{formatoMXN(r.total)}</dd>
           <dt>Avisos</dt><dd>{antiguas > 0 ? `${antiguas} con precio antiguo` : 'Sin avisos'}</dd>
         </dl>
-        <p>Se registrará que <strong>{a.usuario.nombre}</strong> aprobó esta cotización, quedará como Aprobada y ya no se podrá editar. Después podrás descargar el PDF.</p>
+        <p>Se registrará que <strong>{a.usuario.nombre}</strong> aprobó esta cotización, quedará como Aprobada y ya no se podrá editar. Se descargará el PDF y podrás volver a bajarlo cuando quieras.</p>
       </DialogoConfirmacion>
 
       <DialogoConfirmacion
@@ -227,11 +266,11 @@ export default function Revision() {
         textoConfirmar="Rechazar"
         peligro
         onCancelar={() => setDialogo('ninguno')}
-        onConfirmar={() => {
-          a.rechazar(cot.id, motivo.trim());
+        onConfirmar={async () => {
+          const ok = await a.rechazar(cot.id, motivo.trim());
           setMotivo('');
           setDialogo('ninguno');
-          a.avisar(`Cotización ${cot.folio} rechazada.`, 'info');
+          if (ok) a.avisar(`Cotización ${cot.folio} rechazada.`, 'info');
         }}
       >
         <p>La cotización quedará como Rechazada y no se generará PDF. Puedes dejar el motivo para el historial.</p>
@@ -245,7 +284,7 @@ export default function Revision() {
         textoConfirmar="Sí, guardar"
         textoCancelar="No, gracias"
         onCancelar={() => setDialogo('ninguno')}
-        onConfirmar={guardarAprendizaje}
+        onConfirmar={() => void guardarAprendizaje()}
       >
         <p>Editaste partidas antes de aprobar. Si lo guardas, se agrega a Memoria como «Por confirmar» y no se usará hasta que alguien autorizado lo acepte. Podrás verlo, corregirlo o borrarlo.</p>
       </DialogoConfirmacion>

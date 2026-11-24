@@ -168,3 +168,8 @@ def test_los_precios_viejos_llegan_marcados(dataset):
 def test_precio_del_catalogo_en_centavos_exactos(dataset):
     r = interp(dataset, "30 coples conduit pared delgada 3/4 pulg con tornillo")
     assert next(l for l in r.lineas if l.codigo == "COP-CND-075").costo_unitario_centavos == 1250  # $12.50
+
+
+@pytest.mark.parametrize("texto", ["Para Hotel Costa Dorada: 20 gabinetes NEMA 4X", "cotiza para Hotel Costa Dorada: 20 gabinetes NEMA 4X"])
+def test_el_cliente_se_detecta_con_para_en_mayuscula_o_minuscula(dataset, texto):
+    assert interp(dataset, texto).cliente == "Hotel Costa Dorada"

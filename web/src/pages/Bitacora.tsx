@@ -4,7 +4,7 @@ import { Icono } from '../components/Iconos';
 import { useAlmacen } from '../state/Almacen';
 import type { EntradaBitacora } from '../data/tipos';
 import { formatoFecha, formatoFechaHora, textoRelativo } from '../lib/dinero';
-import { useEstadoSimulado } from '../lib/useEstadoSimulado';
+import { useEstadoPantalla } from '../lib/useEstadoPantalla';
 
 const duracion = (ms: number) => (ms === 0 ? '—' : `${(ms / 1000).toFixed(1)} s`);
 
@@ -18,8 +18,8 @@ function aCSV(filas: EntradaBitacora[]): string {
 }
 
 export default function Bitacora() {
-  const { bitacora, avisar } = useAlmacen();
-  const { estado, reintentar } = useEstadoSimulado();
+  const { bitacora, avisar, usuario: usuarioActivo } = useAlmacen();
+  const { estado, reintentar, error } = useEstadoPantalla();
   const [usuario, setUsuario] = useState('');
   const [cotizacion, setCotizacion] = useState('');
   const [desde, setDesde] = useState('');
@@ -57,12 +57,13 @@ export default function Bitacora() {
     <div className="pagina">
       <EncabezadoPagina
         titulo="Bitácora"
-        descripcion="Registro de solo lectura: qué se preguntó, qué se recuperó, qué herramientas se usaron y quién aprobó."
+        descripcion={usuarioActivo.rol === 'Vendedor' ? 'Registro de solo lectura de tus consultas: qué se preguntó, qué se recuperó y qué herramientas se usaron. Como Vendedor solo ves lo tuyo.' : 'Registro de solo lectura: qué se preguntó, qué se recuperó, qué herramientas se usaron y quién aprobó.'}
         acciones={<button className="boton" onClick={exportar} disabled={filtradas.length === 0}><Icono nombre="descargar" tamano={16} /> Exportar CSV</button>}
       />
       <ContenidoConEstados
         estado={estado}
         reintentar={reintentar}
+        mensajeError={error}
         vacio={{ titulo: 'La bitácora está vacía', texto: 'Cada consulta y aprobación quedará registrada aquí.' }}
       >
         <form className="filtros" onSubmit={(e) => e.preventDefault()} aria-label="Filtros de la bitácora">
@@ -107,7 +108,7 @@ export default function Bitacora() {
             ))}
           </div>
         )}
-        <p className="texto-suave nota-calculo">Las duraciones son datos de ejemplo; la latencia real se mide con el script de evaluación (semana 1).</p>
+        <p className="texto-suave nota-calculo">La duración es lo que midió el servidor al recuperar y calcular; las aprobaciones y descargas de PDF no miden tiempo (—). La latencia con 50 casos se mide con eval/evaluar.py.</p>
       </ContenidoConEstados>
     </div>
   );

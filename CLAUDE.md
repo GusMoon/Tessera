@@ -55,14 +55,14 @@ Pendiente de confirmar: el LLM local (ver licencia de Qwen2.5-3B en `docs/licenc
 
 ## Comandos
 
-Solo existe el prototipo visual de la interfaz (`web/`, datos de ejemplo, sin backend):
+Interfaz (`web/`; consume la API, así que necesita el backend arriba para tener datos):
 
 ```
 cd web
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # revisa tipos y empaqueta
-npm test         # pruebas de cálculo y formato de dinero
+npm test         # pruebas de cálculo, paridad con el backend, mapeo de la API y formato
 ```
 
 Configuración de la API de IA (Python; `agent/llm/`, ver `docs/contratos.md`):
@@ -103,7 +103,9 @@ cd web && npm install && npm run dev
 # Compilar la interfaz para producción: cd web && npm run build   (genera web/dist)
 ```
 
-El chat usa el proveedor de `LLM_PROVIDER` en `.env` (con OpenRouter: `LLM_PROVIDER=openrouter`).
+El chat usa el proveedor de `LLM_PROVIDER` en `.env` (con OpenRouter: `LLM_PROVIDER=openrouter`). Las cotizaciones las calcula código; el modelo solo redacta notas (con `MODO_DEMO=true` usa respuestas precargadas y no gasta cuota).
+
+Primer recorrido (Hito 3): en el selector de usuario de la barra superior elige **Laura Canché (Administrador)** → Fuentes → «Cargar dataset sintético». Luego, en el chat, pide «Cotiza 20 gabinetes NEMA 4X 40x30x20 con instalación y flete a Mérida», abre la revisión, edita una cantidad y, como **Marcos Díaz (Responsable comercial)**, aprueba y descarga el PDF. Los permisos por rol están en `docs/permisos.md`; elegir usuario no es iniciar sesión.
 
 Para el resto del sistema, documentar aquí (y mantener al día):
 

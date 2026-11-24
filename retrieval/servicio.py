@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import threading
 import time
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from retrieval.indice import Indice
 RAIZ = Path(__file__).resolve().parents[1]
 _cache: dict[str, Indice] = {}
 _embedder: Embedder | None = None
+_candado_embedder = threading.Lock()  # la precarga al arrancar y la primera cotización no deben cargar el modelo dos veces
 
 
 def carpeta_indice() -> Path:
@@ -25,9 +27,10 @@ def carpeta_indice() -> Path:
 def obtener_embedder() -> Embedder:
     """El modelo se carga una sola vez por proceso."""
     global _embedder
-    if _embedder is None:
-        _embedder = crear_embedder()
-    return _embedder
+    with _candado_embedder:
+        if _embedder is None:
+            _embedder = crear_embedder()
+        return _embedder
 
 
 def reindexar(conn: sqlite3.Connection | None = None, embedder: Embedder | None = None) -> dict:

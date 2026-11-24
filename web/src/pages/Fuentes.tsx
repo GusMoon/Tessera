@@ -4,6 +4,7 @@ import { InsigniaEstado } from '../components/Insignia';
 import { usePanel } from '../components/Panel';
 import { useAlmacen } from '../state/Almacen';
 import { Icono } from '../components/Iconos';
+import { fetchApi } from '../lib/api';
 
 interface FuenteAPI {
   id: number;
@@ -29,8 +30,11 @@ interface RechazoAPI {
   fecha: string;
 }
 
+const EXTENSIONES = /\.(csv|xlsx|xls|pdf)$/i;
+
 export default function Fuentes() {
-  const { avisar } = useAlmacen();
+  const { avisar, esAdministrador } = useAlmacen();
+  const soloAdmin = 'Solo un Administrador puede cambiar las fuentes (cambia de usuario arriba para probarlo).';
   const { abrir } = usePanel();
   const [fuentes, setFuentes] = useState<FuenteAPI[]>([]);
   const [rechazos, setRechazos] = useState<RechazoAPI[]>([]);
@@ -38,6 +42,8 @@ export default function Fuentes() {
   const [procesandoAccion, setProcesandoAccion] = useState<boolean>(false);
   const [filtroArchivo, setFiltroArchivo] = useState<string>('todos');
   const [seleccionId, setSeleccionId] = useState<number | undefined>();
+  const [arrastrando, setArrastrando] = useState(false);
+  const [progreso, setProgreso] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Carga inicial y actualización desde la API
@@ -45,8 +51,8 @@ export default function Fuentes() {
     try {
       setCargando(true);
       const [resFuentes, resRechazos] = await Promise.all([
-        fetch('/api/fuentes'),
-        fetch('/api/fuentes/rechazos'),
+        fetchApi('/api/fuentes'),
+        fetchApi('/api/fuentes/rechazos'),
       ]);
 
       if (resFuentes.ok) {
@@ -68,29 +74,35 @@ export default function Fuentes() {
     cargarDatos();
   }, []);
 
-  // Manejador de subida de archivos (CSV, XLSX, PDF) con soporte para múltiples archivos
-  const manejarSubida = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  // Sube uno o varios archivos (CSV, XLSX, PDF), de uno en uno; vale tanto para el botón como para arrastrar y soltar
+  const subirArchivos = async (lista: File[]) => {
+    if (lista.length === 0 || procesandoAccion) return;
+    if (!esAdministrador) {
+      avisar(soloAdmin, 'error');
+      return;
+    }
+    const validos = lista.filter((f) => EXTENSIONES.test(f.name));
+    const ignorados = lista.filter((f) => !EXTENSIONES.test(f.name));
+    if (ignorados.length > 0) {
+      avisar(`Se omitió ${ignorados.map((f) => f.name).join(', ')}: solo se admiten CSV, XLSX y PDF.`, 'error');
+    }
+    if (validos.length === 0) return;
 
     setProcesandoAccion(true);
     let exitoTotal = 0;
 
-    for (let i = 0; i < files.length; i++) {
-      const archivo = files[i];
-      avisar(`Procesando (${i + 1}/${files.length}): ${archivo.name}...`, 'info');
+    for (let i = 0; i < validos.length; i++) {
+      const archivo = validos[i];
+      setProgreso(`Procesando ${i + 1} de ${validos.length}: ${archivo.name}`);
 
       try {
         const formData = new FormData();
         formData.append('file', archivo);
 
-        const res = await fetch('/api/fuentes/subir', {
-          method: 'POST',
-          body: formData,
-        });
+        const res = await fetchApi('/api/fuentes/subir', { method: 'POST', body: formData });
 
         if (!res.ok) {
-          const err = await res.json();
+          const err = await res.json().catch(() => ({}));
           throw new Error(err.detail || `Error al procesar ${archivo.name}`);
         }
 
@@ -101,8 +113,9 @@ export default function Fuentes() {
       }
     }
 
+    setProgreso(null);
     if (exitoTotal > 0) {
-      avisar(`Ingesta completada: ${exitoTotal} archivo(s) procesados con éxito.`, 'ok');
+      avisar(`Ingesta completada: ${exitoTotal} de ${validos.length} archivo(s) procesados.`, exitoTotal === validos.length ? 'ok' : 'info');
       await cargarDatos();
     }
 
@@ -110,13 +123,27 @@ export default function Fuentes() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const manejarSubida = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const lista = Array.from(e.target.files ?? []);
+    e.target.value = ''; // permite volver a elegir los mismos archivos
+    void subirArchivos(lista);
+  };
+
+  const alSoltar = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setArrastrando(false);
+    void subirArchivos(Array.from(e.dataTransfer.files));
+  };
+
+  const puedeSubir = esAdministrador && !procesandoAccion;
+
   // Vaciar la base de datos de ingesta para iniciar la demostración en limpio
   const vaciarBase = async () => {
     if (!window.confirm('¿Deseas vaciar todas las fuentes de la base de datos para iniciar la demostración en limpio?')) return;
     setProcesandoAccion(true);
     try {
-      const res = await fetch('/api/fuentes/limpiar', { method: 'POST' });
-      if (!res.ok) throw new Error('Error al vaciar la base de datos');
+      const res = await fetchApi('/api/fuentes/limpiar', { method: 'POST' });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || 'Error al vaciar la base de datos');
       const data = await res.json();
       avisar(data.mensaje, 'ok');
       await cargarDatos();
@@ -133,7 +160,7 @@ export default function Fuentes() {
     setProcesandoAccion(true);
     avisar('Cargando dataset sintético completo (CSV, XLSX y 10 PDFs)...', 'info');
     try {
-      const res = await fetch('/api/fuentes/cargar-dataset-sintetico', { method: 'POST' });
+      const res = await fetchApi('/api/fuentes/cargar-dataset-sintetico', { method: 'POST' });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.detail || 'Error al cargar dataset');
@@ -217,7 +244,8 @@ export default function Fuentes() {
   const archivosUnicos = Array.from(new Set(rechazos.map((r) => r.archivo)));
 
   return (
-    <div className="pagina">
+    // soltar un archivo fuera de la zona no debe hacer que el navegador lo abra y se pierda la pantalla
+    <div className="pagina" onDragOver={(e) => e.preventDefault()} onDrop={(e) => e.preventDefault()}>
       <input
         type="file"
         ref={fileInputRef}
@@ -235,23 +263,24 @@ export default function Fuentes() {
             <button
               className="boton boton--primario"
               onClick={() => fileInputRef.current?.click()}
-              disabled={procesandoAccion}
+              disabled={procesandoAccion || !esAdministrador}
+              title={esAdministrador ? undefined : soloAdmin}
             >
               <Icono nombre="check" tamano={14} /> Subir archivo (CSV, XLSX, PDF)
             </button>
             <button
               className="boton"
               onClick={cargarDatasetCompleto}
-              disabled={procesandoAccion}
-              title="Carga en lote el dataset sintético (50 artículos CSV, 120 cotizaciones XLSX y 10 PDFs)"
+              disabled={procesandoAccion || !esAdministrador}
+              title={esAdministrador ? 'Carga en lote el dataset sintético (catálogo, tarifario de servicios, historial y 10 PDFs)' : soloAdmin}
             >
               Cargar dataset sintético
             </button>
             <button
               className="boton boton--peligro-suave"
               onClick={vaciarBase}
-              disabled={procesandoAccion}
-              title="Vacía todas las fuentes y rechazos para reiniciar la demostración en limpio"
+              disabled={procesandoAccion || !esAdministrador}
+              title={esAdministrador ? 'Vacía todas las fuentes y rechazos para reiniciar la demostración en limpio' : soloAdmin}
             >
               Vaciar base
             </button>
@@ -266,6 +295,44 @@ export default function Fuentes() {
           </div>
         }
       />
+
+      {!esAdministrador && (
+        <p className="resumen" role="note">
+          Los botones de carga están desactivados: solo el Administrador puede cambiar las fuentes. Elige a <strong>Laura Canché</strong> en el selector de usuario de la barra superior.
+        </p>
+      )}
+
+      <div
+        className={`zona-carga${arrastrando && puedeSubir ? ' zona-carga--activa' : ''}${esAdministrador ? '' : ' zona-carga--bloqueada'}`}
+        role="button"
+        tabIndex={puedeSubir ? 0 : -1}
+        aria-disabled={!puedeSubir}
+        aria-label="Zona de carga: arrastra archivos aquí o pulsa para elegirlos"
+        onClick={() => puedeSubir && fileInputRef.current?.click()}
+        onKeyDown={(e) => {
+          if (puedeSubir && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setArrastrando(true);
+        }}
+        onDragLeave={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setArrastrando(false);
+        }}
+        onDrop={alSoltar}
+      >
+        {progreso ? (
+          <span className="zona-carga__progreso" role="status">{progreso}</span>
+        ) : (
+          <>
+            <strong>{arrastrando && puedeSubir ? 'Suéltalos para subirlos' : 'Arrastra aquí uno o varios archivos'}</strong>
+            <span>o pulsa para elegirlos · CSV, XLSX o PDF · se procesan de uno en uno</span>
+          </>
+        )}
+      </div>
 
       {/* Resumen estadístico */}
       <p className="resumen" role="status">

@@ -161,6 +161,7 @@ CREATE TABLE IF NOT EXISTS cotizaciones (
     fecha TEXT NOT NULL,                  -- ISO con hora
     escenario_aprobado TEXT,
     motivo_rechazo TEXT,
+    contexto_json TEXT NOT NULL DEFAULT '{}', -- avisos, cotizaciones parecidas y origen de la redacción
     FOREIGN KEY (creada_por) REFERENCES usuarios(id)
 );
 

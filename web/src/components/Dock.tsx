@@ -4,12 +4,15 @@ import type { EstadoCotizacion } from '../data/tipos';
 
 /**
  * Dock de aprobación: el total y la acción principal siempre a la vista mientras se revisa.
- * «Aprobar» solo abre el diálogo de confirmación; nada se genera sin aprobación registrada.
+ * «Aprobar» solo abre el diálogo de confirmación; el servidor exige la aprobación registrada antes de dar el PDF
+ * (regla 3) y solo un Responsable comercial o un Administrador puede aprobar.
  */
 export function DockAprobacion({
   estado,
   escenario,
   total,
+  puedeAprobar,
+  onEnviar,
   onAprobar,
   onRechazar,
   onDescargar,
@@ -17,6 +20,8 @@ export function DockAprobacion({
   estado: EstadoCotizacion;
   escenario: string;
   total: number;
+  puedeAprobar: boolean;
+  onEnviar: () => void;
   onAprobar: () => void;
   onRechazar: () => void;
   onDescargar: () => void;
@@ -29,7 +34,15 @@ export function DockAprobacion({
         <CifraAnimada centavos={total} className="dock__cifra" />
       </div>
       <div className="dock__acciones">
-        {revisable && (
+        {revisable && !puedeAprobar && (
+          <span className="texto-suave dock__aviso">Solo un Responsable comercial o un Administrador puede aprobar.</span>
+        )}
+        {revisable && estado === 'Borrador' && (
+          <button className="boton" onClick={onEnviar}>
+            Enviar a revisión
+          </button>
+        )}
+        {revisable && puedeAprobar && (
           <>
             <button className="boton boton--fantasma boton--peligro-suave" onClick={onRechazar}>
               Rechazar

@@ -22,15 +22,22 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 import logging
+import threading
 
-from fastapi import BackgroundTasks, FastAPI, UploadFile, File, Form, HTTPException, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, UploadFile, File, Form, HTTPException, Query
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from db.database import get_connection, init_db, vaciar_ingesta
 from ingest.servicio import procesar_archivo
 from api.chat import router as chat_router
-from retrieval.servicio import olvidar_indice, reindexar
+from api.cotizaciones import router as cotizaciones_router
+from api.deps import ADMINISTRADOR, requiere_rol
+from api.panel import router as panel_router
+from agent.cotizaciones import ErrorCotizacion
+from documents.pdf import AprobacionRequerida, IntegridadError
+from retrieval.servicio import obtener_embedder, olvidar_indice, reindexar
 
 log = logging.getLogger("tessera.api")
 
@@ -45,7 +52,7 @@ def _reindexar_en_segundo_plano() -> None:
 
 app = FastAPI(
     title="TESSERA API",
-    description="Backend local de cotizaciones con IA · Hito 1: Ingesta de datos",
+    description="Backend local de cotizaciones con IA · Hitos 1 a 3",
     version="0.1.0"
 )
 
@@ -60,6 +67,19 @@ app.add_middleware(
 
 
 app.include_router(chat_router)
+app.include_router(cotizaciones_router)
+app.include_router(panel_router)
+
+
+@app.exception_handler(ErrorCotizacion)
+async def _error_de_cotizacion(_, exc: ErrorCotizacion):
+    return JSONResponse(status_code=exc.estado_http, content={"detail": str(exc)})
+
+
+@app.exception_handler(AprobacionRequerida)
+@app.exception_handler(IntegridadError)
+async def _error_de_pdf(_, exc: Exception):
+    return JSONResponse(status_code=409, content={"detail": str(exc)})
 
 
 # Modelos Pydantic
@@ -98,6 +118,9 @@ class RespuestaCarga(BaseModel):
 def startup_event():
     """Verifica e inicializa la base de datos al arrancar si no existe."""
     init_db(reset=False)
+    # El modelo de embeddings tarda en cargar (~30 s la primera vez): se calienta en segundo plano para que la
+    # primera cotización no espere.
+    threading.Thread(target=obtener_embedder, daemon=True, name="precarga-embedder").start()
 
 
 @app.get("/api/health")
@@ -133,7 +156,7 @@ def listar_fuentes():
 
 
 @app.post("/api/fuentes/subir", response_model=RespuestaCarga)
-async def subir_fuente(tareas: BackgroundTasks, file: UploadFile = File(...), permiso: Optional[str] = Form(None)):
+async def subir_fuente(tareas: BackgroundTasks, file: UploadFile = File(...), permiso: Optional[str] = Form(None), _: dict = Depends(requiere_rol(ADMINISTRADOR, accion="cambiar las fuentes"))):
     """
     Sube y procesa inmediatamente un archivo (CSV, XLSX o PDF).
     Valida, guarda válidas en SQLite y registra rechazos con motivo legible.
@@ -214,7 +237,7 @@ def listar_rechazos_fuente(fuente_id: int):
 
 
 @app.post("/api/fuentes/cargar-dataset-sintetico")
-def cargar_dataset_sintetico(tareas: BackgroundTasks):
+def cargar_dataset_sintetico(tareas: BackgroundTasks, _: dict = Depends(requiere_rol(ADMINISTRADOR, accion="cambiar las fuentes"))):
     """
     Carga automáticamente todo el dataset sintético (CSV, tarifario, XLSX y los 10 PDFs)
     desde el disco para demostración instantánea sin intervención manual.
@@ -259,7 +282,7 @@ def cargar_dataset_sintetico(tareas: BackgroundTasks):
 
 
 @app.post("/api/fuentes/limpiar")
-def limpiar_base():
+def limpiar_base(_: dict = Depends(requiere_rol(ADMINISTRADOR, accion="cambiar las fuentes"))):
     """Vacía las fuentes cargadas y su índice. Conserva usuarios, cotizaciones, memoria y bitácora."""
     vaciar_ingesta()
     olvidar_indice()

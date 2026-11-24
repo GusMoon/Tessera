@@ -1,27 +1,37 @@
-// Estado global del prototipo (datos de ejemplo en memoria). Se reemplaza por llamadas a la API.
-// Las cifras siempre se derivan con lib/calculo.ts; aquí solo se guardan cantidades y precios.
+// Estado global de la interfaz. Los datos viven en la API (SQLite): aquí solo se guarda una copia para pintar la pantalla.
+// Las cifras de una cotización se derivan en el navegador con lib/calculo.ts para recalcular al instante al editar, pero el
+// servidor valida cada edición y es la fuente de verdad: lo que responde reemplaza a lo que se pintó de forma optimista.
 
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
-import {
-  BITACORA_INICIAL,
-  CITAS,
-  COTIZACIONES_INICIALES,
-  DOCUMENTOS_INICIALES,
-  MEMORIA_INICIAL,
-  USUARIO_ACTUAL,
-} from '../data/ejemplo';
-import type {
-  Cita,
-  Cotizacion,
-  Documento,
-  EntradaBitacora,
-  HechoMemoria,
-  IdEscenario,
-  Partida,
-  Usuario,
-} from '../data/tipos';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import type { Cita, Cotizacion, Documento, EntradaBitacora, HechoMemoria, IdEscenario, Partida, Usuario } from '../data/tipos';
 import { ESCENARIOS } from '../data/tipos';
+import {
+  aprobarApi,
+  borrarDatosApi,
+  borrarHechoApi,
+  confirmarHechoApi,
+  crearCotizacionApi,
+  crearCotizacionDesdeArchivosApi,
+  descargarPdfApi,
+  editarHechoApi,
+  editarNotasApi,
+  editarPartidaApi,
+  enviarARevisionApi,
+  fijarUsuarioActivo,
+  listarBitacoraApi,
+  listarCotizaciones,
+  listarFuentes,
+  listarMemoriaApi,
+  listarUsuarios,
+  obtenerAjustesApi,
+  proponerHechoApi,
+  rechazarApi,
+  type AjustesApi,
+  type CotizacionApi,
+  type ResultadoSolicitud,
+} from '../lib/api';
 import { ahoraISO, formatoMXN } from '../lib/dinero';
+import { aCita, aCotizacion, aDocumento, aEntradaBitacora, aHecho, citasDe } from '../lib/mapeo';
 
 export type TipoToast = 'ok' | 'error' | 'info';
 interface Toast {
@@ -30,18 +40,32 @@ interface Toast {
   tipo: TipoToast;
 }
 
+const CLAVE_USUARIO = 'tessera.usuario';
+const SIN_USUARIO: Usuario = { id: '', nombre: '…', rol: 'Vendedor' };
+
 interface Almacen {
   usuario: Usuario;
+  usuarios: Usuario[];
+  cambiarUsuario: (id: string) => void;
+  /** Quien puede aprobar, rechazar y gestionar la memoria (Responsable comercial y Administrador). */
+  puedeAprobar: boolean;
+  esAdministrador: boolean;
   cotizaciones: Cotizacion[];
   documentos: Documento[];
   memoria: HechoMemoria[];
   bitacora: EntradaBitacora[];
+  ajustes: AjustesApi | null;
   citas: Cita[];
+  cargando: boolean;
+  errorCarga: string | null;
+  recargar: () => void;
   toasts: Toast[];
   avisar: (texto: string, tipo?: TipoToast) => void;
   cerrarToast: (id: number) => void;
   citaPorId: (id: string) => Cita | undefined;
   documentoPorId: (id: string) => Documento | undefined;
+  /** Interpreta la solicitud (y los archivos adjuntos, si hay). Lanza `ErrorApi` con un mensaje legible si falla. */
+  crearCotizacion: (solicitud: string, archivos?: File[]) => Promise<ResultadoSolicitud>;
   actualizarPartida: (
     cotizacionId: string,
     escenario: IdEscenario,
@@ -49,31 +73,43 @@ interface Almacen {
     cambios: Partial<Pick<Partida, 'cantidad' | 'precioUnitario'>>,
   ) => void;
   actualizarNotas: (cotizacionId: string, escenario: IdEscenario, notas: string) => void;
-  aprobar: (cotizacionId: string, escenario: IdEscenario) => void;
-  rechazar: (cotizacionId: string, motivo: string) => void;
-  guardarAprendizaje: (cotizacionId: string, texto: string) => void;
-  editarHecho: (id: string, texto: string) => void;
-  alternarPausa: (id: string) => void;
-  confirmarHecho: (id: string) => void;
-  borrarHecho: (id: string) => void;
-  reprocesar: (id: string) => void;
+  enviarARevision: (cotizacionId: string) => Promise<boolean>;
+  aprobar: (cotizacionId: string, escenario: IdEscenario) => Promise<boolean>;
+  rechazar: (cotizacionId: string, motivo: string) => Promise<boolean>;
+  descargarPdf: (cotizacionId: string) => Promise<void>;
+  guardarAprendizaje: (cotizacionId: string, texto: string) => Promise<void>;
+  editarHecho: (id: string, texto: string) => Promise<void>;
+  alternarPausa: (id: string) => Promise<void>;
+  confirmarHecho: (id: string) => Promise<void>;
+  borrarHecho: (id: string) => Promise<void>;
+  borrarDatos: () => Promise<void>;
 }
 
 const Contexto = createContext<Almacen | null>(null);
 
 const etiquetaEscenario = (id: IdEscenario) => ESCENARIOS.find((e) => e.id === id)?.etiqueta ?? id;
+const mensajeDe = (e: unknown) => (e instanceof Error ? e.message : 'Ocurrió un error inesperado.');
 
 export function ProveedorAlmacen({ children }: { children: ReactNode }) {
-  const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>(COTIZACIONES_INICIALES);
-  const [documentos, setDocumentos] = useState<Documento[]>(DOCUMENTOS_INICIALES);
-  const [memoria, setMemoria] = useState<HechoMemoria[]>(MEMORIA_INICIAL);
-  const [bitacora, setBitacora] = useState<EntradaBitacora[]>(BITACORA_INICIAL);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [usuarioId, setUsuarioId] = useState<string>(() => window.localStorage.getItem(CLAVE_USUARIO) ?? 'u2');
+  const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
+  const [citas, setCitas] = useState<Map<string, Cita>>(new Map());
+  const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const [memoria, setMemoria] = useState<HechoMemoria[]>([]);
+  const [bitacora, setBitacora] = useState<EntradaBitacora[]>([]);
+  const [ajustes, setAjustes] = useState<AjustesApi | null>(null);
+  const [cargando, setCargando] = useState(true);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const siguienteToast = useRef(1);
-  const usuario = USUARIO_ACTUAL;
+  const cotRef = useRef<Cotizacion[]>([]);
+  cotRef.current = cotizaciones;
+  const cargaVigente = useRef(0);
+
+  const usuario = usuarios.find((u) => u.id === usuarioId) ?? SIN_USUARIO;
 
   const cerrarToast = useCallback((id: number) => setToasts((t) => t.filter((x) => x.id !== id)), []);
-
   const avisar = useCallback(
     (texto: string, tipo: TipoToast = 'ok') => {
       const id = siguienteToast.current++;
@@ -83,134 +119,250 @@ export function ProveedorAlmacen({ children }: { children: ReactNode }) {
     [cerrarToast],
   );
 
+  // --------------------------------------------------------------------------- carga
+  const cargarTodo = useCallback(async () => {
+    const mia = ++cargaVigente.current;
+    setCargando(true);
+    try {
+      const [cots, fuentes, hechos, entradas, aj] = await Promise.all([
+        listarCotizaciones(),
+        listarFuentes(),
+        listarMemoriaApi(),
+        listarBitacoraApi(),
+        obtenerAjustesApi(),
+      ]);
+      if (mia !== cargaVigente.current) return; // llegó otra carga más nueva (cambio de usuario)
+      setCotizaciones(cots.map(aCotizacion));
+      setCitas(citasDe(cots));
+      setDocumentos(fuentes.map(aDocumento));
+      setMemoria(hechos.map(aHecho));
+      setBitacora(entradas.map(aEntradaBitacora));
+      setAjustes(aj);
+      setErrorCarga(null);
+    } catch (e) {
+      if (mia === cargaVigente.current) setErrorCarga(mensajeDe(e));
+    } finally {
+      if (mia === cargaVigente.current) setCargando(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    listarUsuarios()
+      .then((lista) => {
+        setUsuarios(lista);
+        setUsuarioId((actual) => (lista.some((u) => u.id === actual) ? actual : (lista.find((u) => u.rol === 'Responsable comercial') ?? lista[0])?.id ?? ''));
+      })
+      .catch((e) => {
+        setErrorCarga(mensajeDe(e));
+        setCargando(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!usuarioId || usuarios.length === 0) return;
+    fijarUsuarioActivo(usuarioId);
+    window.localStorage.setItem(CLAVE_USUARIO, usuarioId);
+    void cargarTodo();
+  }, [usuarioId, usuarios, cargarTodo]);
+
+  const refrescarBitacora = useCallback(() => {
+    listarBitacoraApi().then((l) => setBitacora(l.map(aEntradaBitacora))).catch(() => undefined);
+    obtenerAjustesApi().then(setAjustes).catch(() => undefined);
+  }, []);
+
+  // --------------------------------------------------------------------------- cotizaciones
+  const reemplazar = useCallback((api: CotizacionApi) => {
+    const nueva = aCotizacion(api);
+    setCotizaciones((lista) => (lista.some((c) => c.id === nueva.id) ? lista.map((c) => (c.id === nueva.id ? nueva : c)) : [nueva, ...lista]));
+    setCitas((m) => {
+      const copia = new Map(m);
+      Object.values(api.fuentes).forEach((f) => copia.set(f.ref, aCita(f)));
+      return copia;
+    });
+  }, []);
+
   const modificar = useCallback(
-    (id: string, fn: (c: Cotizacion) => Cotizacion) =>
-      setCotizaciones((lista) => lista.map((c) => (c.id === id ? fn(c) : c))),
+    (id: string, fn: (c: Cotizacion) => Cotizacion) => setCotizaciones((lista) => lista.map((c) => (c.id === id ? fn(c) : c))),
     [],
   );
 
-  const valor = useMemo<Almacen>(
-    () => ({
+  const valor = useMemo<Almacen>(() => {
+    const restaurar = (antes: Cotizacion | undefined) => antes && setCotizaciones((lista) => lista.map((c) => (c.id === antes.id ? antes : c)));
+
+    return {
       usuario,
+      usuarios,
+      cambiarUsuario: setUsuarioId,
+      puedeAprobar: usuario.rol !== 'Vendedor',
+      esAdministrador: usuario.rol === 'Administrador',
       cotizaciones,
       documentos,
       memoria,
       bitacora,
-      citas: CITAS,
+      ajustes,
+      citas: [...citas.values()],
+      cargando,
+      errorCarga,
+      recargar: () => void cargarTodo(),
       toasts,
       avisar,
       cerrarToast,
-      citaPorId: (id) => CITAS.find((c) => c.id === id),
+      citaPorId: (id) => citas.get(id),
       documentoPorId: (id) => documentos.find((d) => d.id === id),
 
-      actualizarPartida: (cotizacionId, escenario, partidaId, cambios) =>
-        modificar(cotizacionId, (c) => {
-          const actual = c.escenarios[escenario].partidas.find((p) => p.id === partidaId);
-          if (!actual) return c;
-          const detalle: string[] = [];
-          if (cambios.cantidad !== undefined && cambios.cantidad !== actual.cantidad)
-            detalle.push(`cantidad ${actual.cantidad} → ${cambios.cantidad}`);
-          if (cambios.precioUnitario !== undefined && cambios.precioUnitario !== actual.precioUnitario)
-            detalle.push(`precio ${formatoMXN(actual.precioUnitario)} → ${formatoMXN(cambios.precioUnitario)}`);
-          if (detalle.length === 0) return c;
-          return {
-            ...c,
-            escenarios: {
-              ...c.escenarios,
-              [escenario]: {
-                ...c.escenarios[escenario],
-                partidas: c.escenarios[escenario].partidas.map((p) =>
-                  p.id === partidaId ? { ...p, ...cambios, editadaPor: usuario.nombre } : p,
-                ),
-              },
+      crearCotizacion: async (solicitud, archivos = []) => {
+        const r = archivos.length > 0 ? await crearCotizacionDesdeArchivosApi(solicitud, archivos) : await crearCotizacionApi(solicitud);
+        if (r.tipo === 'cotizacion') reemplazar(r.cotizacion);
+        if (r.tipo !== 'conversacion') refrescarBitacora();
+        return r;
+      },
+
+      actualizarPartida: (cotizacionId, escenario, partidaId, cambios) => {
+        const antes = cotRef.current.find((c) => c.id === cotizacionId);
+        const actual = antes?.escenarios[escenario].partidas.find((p) => p.id === partidaId);
+        if (!antes || !actual) return;
+        const detalle: string[] = [];
+        if (cambios.cantidad !== undefined && cambios.cantidad !== actual.cantidad) detalle.push(`cantidad ${actual.cantidad} → ${cambios.cantidad}`);
+        if (cambios.precioUnitario !== undefined && cambios.precioUnitario !== actual.precioUnitario)
+          detalle.push(`precio ${formatoMXN(actual.precioUnitario)} → ${formatoMXN(cambios.precioUnitario)}`);
+        if (detalle.length === 0) return;
+        // Se pinta de inmediato (el recálculo se siente instantáneo) y se confirma con el servidor.
+        modificar(cotizacionId, (c) => ({
+          ...c,
+          escenarios: {
+            ...c.escenarios,
+            [escenario]: {
+              ...c.escenarios[escenario],
+              partidas: c.escenarios[escenario].partidas.map((p) => (p.id === partidaId ? { ...p, ...cambios, editadaPor: usuario.nombre } : p)),
             },
-            historial: [
-              ...c.historial,
-              {
-                fecha: ahoraISO(),
-                usuario: usuario.nombre,
-                texto: `Editó «${actual.concepto}» (${etiquetaEscenario(escenario)}): ${detalle.join(', ')}.`,
-              },
-            ],
-          };
-        }),
-
-      actualizarNotas: (cotizacionId, escenario, notas) =>
-        modificar(cotizacionId, (c) =>
-          c.escenarios[escenario].notas === notas
-            ? c
-            : {
-                ...c,
-                escenarios: { ...c.escenarios, [escenario]: { ...c.escenarios[escenario], notas } },
-                historial: [
-                  ...c.historial,
-                  { fecha: ahoraISO(), usuario: usuario.nombre, texto: `Editó las notas del agente (${etiquetaEscenario(escenario)}).` },
-                ],
-              },
-        ),
-
-      aprobar: (cotizacionId, escenario) => {
-        const ahora = ahoraISO();
-        modificar(cotizacionId, (c) => ({
-          ...c,
-          estado: 'Aprobada',
-          aprobadaPor: usuario.nombre,
-          fechaAprobacion: ahora,
-          escenarioAprobado: escenario,
-          historial: [
-            ...c.historial,
-            { fecha: ahora, usuario: usuario.nombre, texto: `Aprobó el escenario ${etiquetaEscenario(escenario)}.` },
-          ],
+          },
+          historial: [...c.historial, { fecha: ahoraISO(), usuario: usuario.nombre, texto: `Editó «${actual.concepto}» (${etiquetaEscenario(escenario)}): ${detalle.join(', ')}.` }],
         }));
-        setBitacora((b) => [
-          {
-            id: `b${Date.now()}`, fecha: ahora, usuario: usuario.nombre,
-            pregunta: `Aprobación de la cotización #${cotizacionId}`, documentos: [], herramientas: ['generar_pdf'],
-            duracionMs: 0, cotizacion: `#${cotizacionId}`, aprobadoPor: usuario.nombre,
-          },
-          ...b,
-        ]);
+        editarPartidaApi(cotizacionId, partidaId, {
+          cantidad: cambios.cantidad,
+          precio_unitario_centavos: cambios.precioUnitario,
+        })
+          .then(reemplazar)
+          .catch((e) => {
+            restaurar(antes);
+            avisar(`No se guardó el cambio: ${mensajeDe(e)}`, 'error');
+          });
       },
 
-      rechazar: (cotizacionId, motivo) =>
-        modificar(cotizacionId, (c) => ({
-          ...c,
-          estado: 'Rechazada',
-          motivoRechazo: motivo || 'Sin motivo indicado.',
-          historial: [
-            ...c.historial,
-            { fecha: ahoraISO(), usuario: usuario.nombre, texto: `Rechazó la cotización${motivo ? `: ${motivo}` : '.'}` },
-          ],
-        })),
-
-      guardarAprendizaje: (cotizacionId, texto) =>
-        setMemoria((m) => [
-          {
-            id: `m${Date.now()}`, texto, origen: `Cot. ${cotizacionId} aprobada por ${usuario.nombre}`,
-            fecha: ahoraISO().slice(0, 10), estado: 'Activa', porConfirmar: true,
-          },
-          ...m,
-        ]),
-
-      editarHecho: (id, texto) => setMemoria((m) => m.map((h) => (h.id === id ? { ...h, texto } : h))),
-      alternarPausa: (id) =>
-        setMemoria((m) => m.map((h) => (h.id === id ? { ...h, estado: h.estado === 'Activa' ? 'Pausada' : 'Activa' } : h))),
-      confirmarHecho: (id) => setMemoria((m) => m.map((h) => (h.id === id ? { ...h, porConfirmar: false } : h))),
-      borrarHecho: (id) => setMemoria((m) => m.filter((h) => h.id !== id)),
-
-      reprocesar: (id) => {
-        setDocumentos((d) => d.map((x) => (x.id === id ? { ...x, estado: 'Procesando', motivo: undefined } : x)));
-        window.setTimeout(
-          () =>
-            setDocumentos((d) =>
-              d.map((x) => (x.id === id ? { ...x, estado: 'Listo', actualizado: ahoraISO().slice(0, 10) } : x)),
-            ),
-          1800,
-        );
+      actualizarNotas: (cotizacionId, escenario, notas) => {
+        const antes = cotRef.current.find((c) => c.id === cotizacionId);
+        if (!antes || antes.escenarios[escenario].notas === notas) return;
+        modificar(cotizacionId, (c) => ({ ...c, escenarios: { ...c.escenarios, [escenario]: { ...c.escenarios[escenario], notas } } }));
+        editarNotasApi(cotizacionId, escenario, notas)
+          .then(reemplazar)
+          .catch((e) => {
+            restaurar(antes);
+            avisar(`No se guardaron las notas: ${mensajeDe(e)}`, 'error');
+          });
       },
-    }),
-    [usuario, cotizaciones, documentos, memoria, bitacora, toasts, avisar, cerrarToast, modificar],
-  );
+
+      enviarARevision: async (cotizacionId) => {
+        try {
+          reemplazar(await enviarARevisionApi(cotizacionId));
+          return true;
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+          return false;
+        }
+      },
+
+      aprobar: async (cotizacionId, escenario) => {
+        try {
+          reemplazar(await aprobarApi(cotizacionId, escenario));
+          refrescarBitacora();
+          return true;
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+          return false;
+        }
+      },
+
+      rechazar: async (cotizacionId, motivo) => {
+        try {
+          reemplazar(await rechazarApi(cotizacionId, motivo));
+          return true;
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+          return false;
+        }
+      },
+
+      descargarPdf: async (cotizacionId) => {
+        try {
+          const { blob, nombre } = await descargarPdfApi(cotizacionId);
+          const url = URL.createObjectURL(blob);
+          const enlace = Object.assign(document.createElement('a'), { href: url, download: nombre });
+          document.body.appendChild(enlace);
+          enlace.click();
+          enlace.remove();
+          URL.revokeObjectURL(url);
+          refrescarBitacora();
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+        }
+      },
+
+      // --------------------------------------------------------------------- memoria
+      guardarAprendizaje: async (cotizacionId, texto) => {
+        const folio = cotRef.current.find((c) => c.id === cotizacionId)?.folio ?? cotizacionId;
+        try {
+          const h = await proponerHechoApi(texto, `Cot. ${folio} aprobada por ${usuario.nombre}`);
+          setMemoria((m) => [aHecho(h), ...m]);
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+        }
+      },
+      editarHecho: async (id, texto) => {
+        try {
+          const h = aHecho(await editarHechoApi(id, { texto }));
+          setMemoria((m) => m.map((x) => (x.id === id ? h : x)));
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+        }
+      },
+      alternarPausa: async (id) => {
+        const actual = memoria.find((h) => h.id === id);
+        if (!actual) return;
+        try {
+          const h = aHecho(await editarHechoApi(id, { estado: actual.estado === 'Activa' ? 'Pausada' : 'Activa' }));
+          setMemoria((m) => m.map((x) => (x.id === id ? h : x)));
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+        }
+      },
+      confirmarHecho: async (id) => {
+        try {
+          const h = aHecho(await confirmarHechoApi(id));
+          setMemoria((m) => m.map((x) => (x.id === id ? h : x)));
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+        }
+      },
+      borrarHecho: async (id) => {
+        try {
+          await borrarHechoApi(id);
+          setMemoria((m) => m.filter((x) => x.id !== id));
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+        }
+      },
+
+      borrarDatos: async () => {
+        try {
+          const r = await borrarDatosApi();
+          avisar(`Se borraron ${r.borrado.cotizaciones} cotizaciones, ${r.borrado.hechos_memoria} hechos de memoria y ${r.borrado.entradas_bitacora} entradas de bitácora.`, 'info');
+          await cargarTodo();
+        } catch (e) {
+          avisar(mensajeDe(e), 'error');
+        }
+      },
+    };
+  }, [usuario, usuarios, cotizaciones, documentos, memoria, bitacora, ajustes, citas, cargando, errorCarga, toasts, avisar, cerrarToast, modificar, reemplazar, cargarTodo, refrescarBitacora]);
 
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>;
 }

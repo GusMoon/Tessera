@@ -4,8 +4,9 @@ import { Icono, type NombreIcono } from './Iconos';
 import { PanelDerecho, usePanel } from './Panel';
 import { Toasts } from './Toasts';
 import { useAlmacen } from '../state/Almacen';
-import { EMPRESA } from '../data/ejemplo';
+import { EMPRESA } from '../data/constantes';
 import { SelectorTema } from './SelectorTema';
+import { SelectorUsuario } from './SelectorUsuario';
 
 const NAV: { a: string; etiqueta: string; icono: NombreIcono; fin?: boolean }[] = [
   { a: '/', etiqueta: 'Chat', icono: 'chat', fin: true },
@@ -18,7 +19,6 @@ const NAV: { a: string; etiqueta: string; icono: NombreIcono; fin?: boolean }[] 
 
 function Topbar() {
   const navegar = useNavigate();
-  const { usuario } = useAlmacen();
   const [q, setQ] = useState('');
 
   const buscar = (e: FormEvent) => {
@@ -45,13 +45,7 @@ function Topbar() {
       </form>
       <div className="topbar__acciones">
         <SelectorTema />
-        <div className="usuario" title={usuario.rol}>
-          <span className="avatar" aria-hidden="true">{usuario.nombre.split(' ').map((p) => p[0]).join('')}</span>
-          <span className="usuario__texto">
-            <strong>{usuario.nombre}</strong>
-            <span className="texto-suave">{usuario.rol}</span>
-          </span>
-        </div>
+        <SelectorUsuario />
       </div>
     </header>
   );
@@ -79,13 +73,15 @@ function Sidebar({ colapsada, onAlternar }: { colapsada: boolean; onAlternar: ()
 }
 
 function BarraEstado() {
-  const { documentos } = useAlmacen();
+  const { documentos, ajustes, errorCarga } = useAlmacen();
   const listos = documentos.filter((d) => d.estado === 'Listo').length;
+  const modelo = ajustes ? `${ajustes.modo_demo ? 'MODO DEMO · ' : ''}${ajustes.proveedor}: ${ajustes.modelo}` : errorCarga ? 'sin conexión con la API' : 'conectando…';
+  const latencia = ajustes?.ultima_cotizacion_ms ? `${Math.round(ajustes.ultima_cotizacion_ms.total)} ms (recuperación + cálculo)` : 'aún sin cotizar';
   return (
     <footer className="statusbar">
-      <span>Modelo: sin conectar (prototipo)</span>
+      <span>Modelo: {modelo}</span>
       <span>Ingesta: {listos} de {documentos.length} documentos listos</span>
-      <span>Última latencia: sin medir</span>
+      <span>Última cotización: {latencia}</span>
     </footer>
   );
 }

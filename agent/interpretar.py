@@ -55,10 +55,10 @@ SINONIMOS = {
 }
 PALABRAS_SERVICIO = {
     "instalacion": r"\b(instalacion|instalar|instalado|instalados|instaladas?|colocacion|montaje)\b",
-    "flete": r"\b(flete|fletes|envio|envios|transporte|entrega|entregar|entregado|enviar|llevar|acarreo)\b",
+    "flete": r"\b(flete|fletes|envio|envios|transporte|entrega|entregar|entregado|enviar|llevar|llevan|lleven|llevamos|acarreo)\b",
     "opcional": r"\b(supervision|garantia)\b",
 }
-PALABRAS_DESTINO = r"\b(flete|envio|transporte|entrega|entregar|enviar|llevar|obra|domicilio|sitio|destino|acarreo)\b"
+PALABRAS_DESTINO = r"\b(flete|envio|transporte|entrega|entregar|enviar|llevar|llevan|lleven|llevamos|obra|domicilio|sitio|destino|acarreo)\b"
 INSTALACION_POR_CATEGORIA = {  # categoría (sin acentos, minúsculas) → código del tarifario
     "gabinetes": "SRV-INS-GAB", "tableros": "SRV-INS-TAB", "canalizacion": "SRV-INS-CON",
     "iluminacion": "SRV-INS-LUM", "proteccion": "SRV-INS-INT",
@@ -69,6 +69,7 @@ ALCANCE_INSTALACION = {  # palabra en «instalación de …» → categoría
     r"\b(interruptor|pastilla|termomagnetico)": "proteccion",
 }
 COBERTURA_MINIMA = 0.5
+COBERTURA_SUGERENCIA = 0.2  # por debajo de esto un candidato no se ofrece como «¿te refieres a…?»
 _COLA = r"(?:\s+(?:incluida|incluido|incluidas|incluidos|incluye|incluyendo|completa|completo))?"
 _FIN = r"(?=$|[,;.]|\s+y\s|\s+e\s)"
 _ALCANCE = r"(?:\s+(?:de|del)\s+(?:(?:los|las|el|la|unos|unas)\s+)?%s)?"
@@ -221,7 +222,7 @@ def _extraer_servicios(t: str, zonas: dict[str, str]) -> tuple[str, dict]:
 
 
 def _cliente(texto: str) -> str | None:
-    m = re.search(r"\bpara\s+(?:la\s+|el\s+)?((?:[A-ZÁÉÍÓÚÑ][\wÁÉÍÓÚÑáéíóúñ.&-]*\s?){1,6})\s*[:,]", texto)
+    m = re.search(r"\b[Pp]ara\s+(?:la\s+|el\s+)?((?:[A-ZÁÉÍÓÚÑ][\wÁÉÍÓÚÑáéíóúñ.&-]*\s?){1,6})\s*[:,]", texto)
     return m.group(1).strip() if m else None
 
 
@@ -246,6 +247,30 @@ def _resolver_renglon(
     if len(empatados) > 1:
         return None, empatados, "ambiguo"
     return empatados[0], puntuados, None
+
+
+PALABRAS_VACIAS = frozenset({"de", "del", "la", "el", "los", "las", "con", "para", "por", "sin", "una", "uno", "pulg", "unidad", "pieza"})
+
+
+def _se_parece(descripcion: str, candidato: dict) -> bool:
+    """Un candidato se ofrece como sugerencia solo si comparte una palabra con contenido («kilos de cemento» no se parece a
+    «centro de carga» por el «de»)."""
+    utiles = {w for w in tokens_comparacion(descripcion) if len(w) >= 4 and w not in PALABRAS_VACIAS}
+    suyas = set(tokens_comparacion(f"{candidato['concepto']} {candidato.get('categoria') or ''}"))
+    return bool(utiles & suyas) and candidato.get("cobertura", 0) >= COBERTURA_SUGERENCIA
+
+
+def _lo_que_cubre(conn: sqlite3.Connection, usuario_id: str) -> str:
+    """Cuando nada se parece, se dice qué categorías sí hay en lugar de proponer artículos sin relación."""
+    from retrieval.permisos import permisos_de
+
+    permisos = sorted(permisos_de(usuario_id, conn))
+    filas = conn.execute(
+        f"SELECT DISTINCT c.categoria FROM catalogo c JOIN fuentes f ON f.id = c.fuente_id "  # noqa: S608
+        f"WHERE f.permiso IN ({','.join('?' for _ in permisos)}) AND c.categoria IS NOT NULL ORDER BY c.categoria", permisos,
+    ).fetchall()
+    categorias = [f[0] for f in filas if f[0]]
+    return f" El catálogo cargado cubre: {', '.join(categorias)}." if categorias else ""
 
 
 # --------------------------------------------------------------------------- interpretación completa
@@ -305,9 +330,11 @@ def interpretar(
                 if cantidad is None:
                     res.avisos.append(f"No identifiqué «{desc}» como un material del catálogo; se omitió.")
                 else:
-                    sugerencias = ", ".join(c["concepto"] for c in candidatos[:3])
+                    # Solo se sugiere lo que comparte alguna palabra: «ladrillo» no se parece a un reflector LED.
+                    sugerencias = ", ".join(c["concepto"] for c in candidatos[:3] if _se_parece(desc, c))
                     res.preguntas.append(
-                        f"No encontré «{desc}» en el catálogo." + (f" ¿Te refieres a: {sugerencias}?" if sugerencias else ""))
+                        f"No encontré «{desc}» en el catálogo."
+                        + (f" ¿Te refieres a: {sugerencias}?" if sugerencias else _lo_que_cubre(conn, usuario_id)))
                 continue
             if motivo == "ambiguo":
                 opciones = " · ".join(f"{c['concepto']} ({c['codigo']})" for c in candidatos[:4])

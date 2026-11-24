@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Icono } from './Iconos';
-import type { EstadoPantalla } from '../lib/useEstadoSimulado';
+import type { EstadoPantalla } from '../lib/useEstadoPantalla';
 
 export function EncabezadoPagina({
   titulo,
@@ -81,17 +81,20 @@ export function EsqueletoTabla({ filas = 6 }: { filas?: number }) {
 export function ContenidoConEstados({
   estado,
   reintentar,
+  mensajeError,
   vacio,
   children,
 }: {
   estado: EstadoPantalla;
   reintentar: () => void;
+  /** Mensaje del servidor cuando la carga falló. */
+  mensajeError?: string | null;
   vacio: { titulo: string; texto: string; accion?: { etiqueta: string; a?: string } };
   children: ReactNode;
 }) {
   if (estado === 'cargando') return <EsqueletoTabla />;
   if (estado === 'error')
-    return <EstadoError texto="Falló la conexión con el servidor (estado simulado). Intenta de nuevo." onReintentar={reintentar} />;
+    return <EstadoError texto={mensajeError || 'Falló la conexión con el servidor. Intenta de nuevo.'} onReintentar={reintentar} />;
   if (estado === 'vacio') return <EstadoVacio {...vacio} />;
   return <>{children}</>;
 }

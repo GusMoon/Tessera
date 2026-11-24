@@ -155,7 +155,7 @@ def test_la_bitacora_registra_fuentes_y_herramientas(dataset):
     c.execute("DELETE FROM bitacora")
     orquestar(SOLICITUD, "u1", c, dataset["indice"], proveedor=None, modo_demo=True)
     fila = bitacora.listar(c)[0]
-    assert fila["usuario"] == "u1" and fila["pregunta"] == SOLICITUD
+    assert fila["usuario"] == "Ana Pérez" and fila["pregunta"] == SOLICITUD
     assert "catalogo:GAB-403020" in fila["documentos"] and "calcular_cotizacion" in fila["herramientas"] and "redaccion:demo" in fila["herramientas"]
     assert fila["duracion_ms"] >= 0
     c.execute("DELETE FROM bitacora")
