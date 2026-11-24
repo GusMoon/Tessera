@@ -8,11 +8,11 @@ let temporizadorTransicion: number | undefined;
 function leer(): Tema {
   try {
     const v = localStorage.getItem(CLAVE);
-    if (v === 'claro' || v === 'oscuro') return v;
+    if (v === 'claro' || v === 'oscuro' || v === 'sistema') return v;
   } catch {
-    /* almacenamiento no disponible: se usa el tema del sistema */
+    /* almacenamiento no disponible: se usa oscuro por defecto */
   }
-  return 'sistema';
+  return 'oscuro';
 }
 
 let actual: Tema = leer();

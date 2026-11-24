@@ -9,13 +9,17 @@ export const FECHA_REFERENCIA = '2026-11-21';
 /** Umbral de aviso de precio antiguo. [Propuesta] Se confirma con la Persona A. */
 export const UMBRAL_ANTIGUEDAD_MESES = 6;
 
+const formateadorMXN = new Intl.NumberFormat('es-MX', {
+  style: 'currency',
+  currency: 'MXN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 export function formatoPesos(c: Centavos): string {
-  const negativo = c < 0;
-  const abs = Math.abs(c);
-  const pesos = Math.floor(abs / 100);
-  const centavos = String(abs % 100).padStart(2, '0');
-  const miles = String(pesos).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return `${negativo ? '-' : ''}$${miles}.${centavos}`;
+  // Asegura redondeo exacto de centavos antes de formatear
+  const pesos = Math.round(c) / 100;
+  return formateadorMXN.format(pesos);
 }
 
 export function formatoMXN(c: Centavos): string {
@@ -29,6 +33,17 @@ export function parsePesos(texto: string): Centavos | null {
   if (!m) return null;
   const fraccion = (m[2] ?? '').padEnd(2, '0');
   return Number(m[1]) * 100 + Number(fraccion);
+}
+
+const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+/** Formato corto de fecha: "24 nov 2026" sin desbordamiento */
+export function formatoFechaCorta(iso: string): string {
+  if (!iso) return '';
+  const [a, m, d] = iso.slice(0, 10).split('-');
+  const mesNum = parseInt(m, 10);
+  const mesNom = MESES_CORTOS[mesNum - 1] || m;
+  return `${parseInt(d, 10)} ${mesNom} ${a}`;
 }
 
 /** ISO 8601 (aaaa-mm-dd...) a dd/mm/aaaa, sin pasar por zonas horarias. */

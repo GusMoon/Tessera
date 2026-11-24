@@ -8,7 +8,7 @@ import { ChipFecha } from '../components/Traza';
 import { escenarioVigente, useAlmacen } from '../state/Almacen';
 import type { Cotizacion, EstadoCotizacion } from '../data/tipos';
 import { ESCENARIOS } from '../data/tipos';
-import { formatoFecha, formatoMXN } from '../lib/dinero';
+import { formatoFecha, formatoPesos } from '../lib/dinero';
 import { useEstadoPantalla } from '../lib/useEstadoPantalla';
 
 const ESTADOS: EstadoCotizacion[] = ['Borrador', 'En revisión', 'Aprobada', 'Rechazada'];
@@ -24,7 +24,7 @@ function VistaRapida({ c }: { c: Cotizacion }) {
         <dt>Creada por</dt><dd>{c.creadaPor}</dd>
         <dt>Escenario</dt><dd>{ESCENARIOS.find((e) => e.id === id)?.etiqueta}</dd>
         <dt>Partidas</dt><dd>{c.escenarios[id].partidas.length}</dd>
-        <dt>Total</dt><dd className="cifra">{formatoMXN(totalDe(c))}</dd>
+        <dt>Total</dt><dd className="cifra">{formatoPesos(totalDe(c))} <span className="sufijo-moneda">MXN</span></dd>
       </dl>
       <Link className="boton boton--primario" to={`/cotizaciones/${c.id}`}>Abrir revisión</Link>
     </div>
@@ -119,7 +119,7 @@ export default function Cotizaciones() {
                       <button className="enlace-boton" onClick={(e) => { e.stopPropagation(); seleccionar(c); }}>{c.cliente}</button>
                     </td>
                     <td><ChipFecha fecha={c.fecha} /></td>
-                    <td className="derecha cifra">{formatoMXN(totalDe(c))}</td>
+                    <td className="derecha cifra">{formatoPesos(totalDe(c))} <span className="sufijo-moneda">MXN</span></td>
                     <td><InsigniaEstado estado={c.estado} /></td>
                     <td className="nowrap">{c.creadaPor}</td>
                   </tr>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { calcularCotizacion } from '../lib/calculo';
-import { formatoFecha, formatoMXN, formatoPesos, parsePesos } from '../lib/dinero';
+import { formatoFecha, formatoPesos, parsePesos } from '../lib/dinero';
+import { normalizarUnidadesTipograficas } from '../lib/texto';
 import type { Cotizacion, IdEscenario, Partida } from '../data/tipos';
 import { escenarioVigente, useAlmacen } from '../state/Almacen';
 import { ChipFuente } from './Fuentes';
@@ -32,7 +33,9 @@ export function TarjetaCotizacion({ cotizacion }: { cotizacion: Cotizacion }) {
           return (
             <div key={id} className={id === 'recomendado' ? 'es-recomendado' : ''}>
               <span className="texto-suave">{id === 'economico' ? 'Económico' : id === 'recomendado' ? 'Recomendado' : 'Premium'}</span>
-              <span className="cifra tarjeta-cot__total">{formatoMXN(totalDe(c, id))}</span>
+              <span className="cifra tarjeta-cot__total">
+                {formatoPesos(totalDe(c, id))} <span className="sufijo-moneda">MXN</span>
+              </span>
               {masVieja && <TrazaAntiguedad fecha={masVieja} compacta />}
             </div>
           );
@@ -144,7 +147,7 @@ export function TablaPartidas({
             return (
               <tr key={p.id} className={p.editadaPor ? 'fila-editada' : ''}>
                 <td data-etiqueta="Concepto" className="celda-concepto">
-                  {p.concepto}
+                  {normalizarUnidadesTipograficas(p.concepto)}
                   {p.editadaPor && (
                     <div className="marca-editada">
                       <Icono nombre="editar" tamano={12} /> editada por {p.editadaPor}

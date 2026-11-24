@@ -11,7 +11,7 @@ import { PasosEstado } from '../components/Pasos';
 import { usePanel } from '../components/Panel';
 import { ESCENARIOS, type IdEscenario } from '../data/tipos';
 import { calcularCotizacion, formatoMargen, TASA_IVA_PORCIENTO } from '../lib/calculo';
-import { formatoFecha, formatoFechaHora, formatoMXN, mesesDeAntiguedad, UMBRAL_ANTIGUEDAD_MESES } from '../lib/dinero';
+import { formatoFecha, formatoFechaHora, formatoPesos, mesesDeAntiguedad, UMBRAL_ANTIGUEDAD_MESES } from '../lib/dinero';
 import { useAlmacen } from '../state/Almacen';
 
 type Dialogo = 'ninguno' | 'aprobar' | 'rechazar' | 'aprendizaje';
@@ -148,7 +148,7 @@ export default function Revision() {
             onKeyDown={alTeclearPestana}
           >
             <span>{e.id === 'recomendado' && <Icono nombre="estrella" tamano={14} />} {e.etiqueta}</span>
-            <span className="cifra texto-suave">{formatoMXN(resultados[e.id].total)}</span>
+            <span className="cifra texto-suave">{formatoPesos(resultados[e.id].total)} <span className="sufijo-moneda">MXN</span></span>
           </button>
         ))}
       </div>
@@ -169,8 +169,8 @@ export default function Revision() {
 
         <div className="totales">
           <dl>
-            <div><dt>Subtotal</dt><dd className="cifra">{formatoMXN(r.subtotal)}</dd></div>
-            <div><dt>IVA ({TASA_IVA_PORCIENTO} %)</dt><dd className="cifra">{formatoMXN(r.iva)}</dd></div>
+            <div><dt>Subtotal</dt><dd className="cifra">{formatoPesos(r.subtotal)} <span className="sufijo-moneda">MXN</span></dd></div>
+            <div><dt>IVA ({TASA_IVA_PORCIENTO} %)</dt><dd className="cifra">{formatoPesos(r.iva)} <span className="sufijo-moneda">MXN</span></dd></div>
             <div className="totales__total"><dt>Total</dt><dd><CifraAnimada centavos={r.total} /></dd></div>
           </dl>
           <div className="margen">
@@ -254,7 +254,7 @@ export default function Revision() {
         <dl className="lista-datos">
           <dt>Escenario</dt><dd>{etiquetaEscenario}</dd>
           <dt>Partidas</dt><dd>{esc.partidas.length}</dd>
-          <dt>Total</dt><dd className="cifra">{formatoMXN(r.total)}</dd>
+          <dt>Total</dt><dd className="cifra">{formatoPesos(r.total)} <span className="sufijo-moneda">MXN</span></dd>
           <dt>Avisos</dt><dd>{antiguas > 0 ? `${antiguas} con precio antiguo` : 'Sin avisos'}</dd>
         </dl>
         <p>Se registrará que <strong>{a.usuario.nombre}</strong> aprobó esta cotización, quedará como Aprobada y ya no se podrá editar. Se descargará el PDF y podrás volver a bajarlo cuando quieras.</p>

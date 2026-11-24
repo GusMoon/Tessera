@@ -33,6 +33,10 @@ const TRAZOS = {
   calendario: 'M4 6h16v14H4z M4 10h16 M8 3v4 M16 3v4',
   abajo: 'M6 9l6 6 6-6',
   clip: 'M21 11l-9 9a6 6 0 0 1-8.5-8.5l9-9a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5',
+  info: 'M12 9h.01 M12 13v4 M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z',
+  pulgarArriba: 'M14 9V5a3 3 0 0 0-3-3l-4 9v11h11a2 2 0 0 0 2-1.7l1.4-8.3A2 2 0 0 0 19.4 9H14z M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3',
+  pulgarAbajo: 'M10 15v4a3 3 0 0 0 3 3l4-9V2H6a2 2 0 0 0-2 1.7L2.6 12A2 2 0 0 0 4.6 15H10z M17 2h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3',
+  puntos: 'M5 12h.01 M12 12h.01 M19 12h.01',
 } as const;
 
 export type NombreIcono = keyof typeof TRAZOS;

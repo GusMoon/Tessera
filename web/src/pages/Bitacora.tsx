@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ContenidoConEstados, EncabezadoPagina, EstadoVacio } from '../components/Estados';
 import { Icono } from '../components/Iconos';
+import { MedidorUso } from '../components/MedidorUso';
+import { obtenerUsoChat, type UsoChat } from '../lib/api';
 import { useAlmacen } from '../state/Almacen';
 import type { EntradaBitacora } from '../data/tipos';
 import { formatoFecha, formatoFechaHora, textoRelativo } from '../lib/dinero';
@@ -24,6 +26,12 @@ export default function Bitacora() {
   const [cotizacion, setCotizacion] = useState('');
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
+  const [uso, setUso] = useState<UsoChat | null>(null);
+  const [errorUso, setErrorUso] = useState<string | null>(null);
+
+  useEffect(() => {
+    obtenerUsoChat().then(setUso).catch((e: Error) => setErrorUso(e.message));
+  }, []);
 
   const usuarios = useMemo(() => [...new Set(bitacora.map((b) => b.usuario))], [bitacora]);
   const filtradas = bitacora
@@ -58,7 +66,14 @@ export default function Bitacora() {
       <EncabezadoPagina
         titulo="Bitácora"
         descripcion={usuarioActivo.rol === 'Vendedor' ? 'Registro de solo lectura de tus consultas: qué se preguntó, qué se recuperó y qué herramientas se usaron. Como Vendedor solo ves lo tuyo.' : 'Registro de solo lectura: qué se preguntó, qué se recuperó, qué herramientas se usaron y quién aprobó.'}
-        acciones={<button className="boton" onClick={exportar} disabled={filtradas.length === 0}><Icono nombre="descargar" tamano={16} /> Exportar CSV</button>}
+        acciones={
+          <div className="acciones">
+            <MedidorUso uso={uso} error={errorUso} />
+            <button className="boton" onClick={exportar} disabled={filtradas.length === 0}>
+              <Icono nombre="descargar" tamano={16} /> Exportar CSV
+            </button>
+          </div>
+        }
       />
       <ContenidoConEstados
         estado={estado}

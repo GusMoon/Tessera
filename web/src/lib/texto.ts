@@ -39,3 +39,36 @@ export function textoReinicio(isoUtc: string, ahora: Date = new Date()): string 
   const cuando = `${otroDia ? 'mañana ' : ''}a las ${hora}`;
   return faltan > 0 ? `${cuando} (en ${duracionCorta(faltan)})` : cuando;
 }
+
+/** Detecta el modificador de atajo según la plataforma: '⌘K' en macOS y 'Ctrl K' en Windows/Linux. */
+export function atajoModificador(letra: string = 'K'): string {
+  if (typeof navigator !== 'undefined') {
+    const esMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform || navigator.userAgent || '');
+    return esMac ? `⌘${letra}` : `Ctrl ${letra}`;
+  }
+  return `Ctrl ${letra}`;
+}
+
+/** Trunca el nombre de archivo dejando visible la extensión y el prefijo: "catalogo_p...csv" */
+export function truncarNombreArchivo(nombre: string, maxLen: number = 20): string {
+  if (!nombre || nombre.length <= maxLen) return nombre;
+  const p = nombre.lastIndexOf('.');
+  if (p > 0 && p > nombre.length - 7) {
+    const ext = nombre.slice(p);
+    const base = nombre.slice(0, p);
+    const charsParaBase = maxLen - ext.length - 3;
+    if (charsParaBase >= 3) {
+      return `${base.slice(0, charsParaBase)}...${ext}`;
+    }
+  }
+  return `${nombre.slice(0, maxLen - 3)}...`;
+}
+
+/** Corrige notación tipográfica de unidades industriales estándar: kg/cm², m³ y m². */
+export function normalizarUnidadesTipograficas(texto: string): string {
+  if (!texto) return '';
+  return texto
+    .replace(/\bkg\/cm2\b/gi, 'kg/cm²')
+    .replace(/\bm3\b/gi, 'm³')
+    .replace(/\bm2\b/gi, 'm²');
+}

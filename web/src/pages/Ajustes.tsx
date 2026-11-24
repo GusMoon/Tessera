@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DialogoConfirmacion } from '../components/Dialogo';
 import { EncabezadoPagina } from '../components/Estados';
+import { MedidorUso } from '../components/MedidorUso';
+import { obtenerUsoChat, type UsoChat } from '../lib/api';
 import { useAlmacen } from '../state/Almacen';
 import { formatoFecha, formatoMXN } from '../lib/dinero';
 import { useTema, type Tema } from '../lib/tema';
@@ -43,7 +45,13 @@ export default function Ajustes() {
   const { usuarios, usuario, ajustes, esAdministrador, borrarDatos } = useAlmacen();
   const [tema, fijarTema] = useTema();
   const [confirmando, setConfirmando] = useState(false);
+  const [uso, setUso] = useState<UsoChat | null>(null);
+  const [errorUso, setErrorUso] = useState<string | null>(null);
   const ev = ajustes?.evaluacion;
+
+  useEffect(() => {
+    obtenerUsoChat().then(setUso).catch((e: Error) => setErrorUso(e.message));
+  }, []);
 
   return (
     <div className="pagina">
@@ -77,8 +85,11 @@ export default function Ajustes() {
       </section>
 
       <section className="seccion" aria-labelledby="aj-modelo">
-        <h2 id="aj-modelo">Modelo activo</h2>
-        <p className="texto-suave">Solo lectura en el MVP. Las cifras salen de la última corrida; no son una promesa.</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--e-3)' }}>
+          <h2 id="aj-modelo" style={{ margin: 0 }}>Modelo activo y cuota</h2>
+          <MedidorUso uso={uso} error={errorUso} />
+        </div>
+        <p className="texto-suave">Solo lectura en el MVP. Monitoreo de cuota, tokens de sesión y límites del proveedor.</p>
         {ajustes ? (
           <dl className="lista-datos">
             <dt>Modelo de conversación</dt><dd>{ajustes.proveedor} · {ajustes.modelo}</dd>

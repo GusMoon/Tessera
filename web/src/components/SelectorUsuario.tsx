@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { Icono } from './Iconos';
+import { SelectorTema } from './SelectorTema';
 import { useAlmacen } from '../state/Almacen';
 
 const iniciales = (nombre: string) => nombre.split(' ').map((p) => p[0]).join('').slice(0, 2);
@@ -70,7 +71,7 @@ export function SelectorUsuario() {
       </button>
 
       {abierto && (
-        <div className="selector-usuario__menu" id={idMenu} role="menu" aria-label="Cambiar de usuario">
+        <div className="selector-usuario__menu" id={idMenu} role="menu" aria-label="Menú de usuario y preferencias">
           <p className="selector-usuario__titulo">Probar la app como…</p>
           {usuarios.map((u) => {
             const activo = u.id === usuario.id;
@@ -92,6 +93,12 @@ export function SelectorUsuario() {
               </button>
             );
           })}
+          
+          <div className="selector-usuario__seccion-tema">
+            <span className="selector-usuario__titulo">Tema de apariencia</span>
+            <SelectorTema />
+          </div>
+
           <p className="selector-usuario__nota texto-suave">No es iniciar sesión: cada rol tiene permisos distintos.</p>
         </div>
       )}
